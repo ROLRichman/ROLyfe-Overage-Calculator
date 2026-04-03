@@ -19,19 +19,21 @@ width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:
 button{background:#f43f5e;color:#fff;font-weight:bold;}
 
 .card{background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+
 .good{color:#22c55e;}
+.warn{color:#facc15;}
 .bad{color:#ef4444;}
 
 .flex{display:flex;gap:10px;}
-.flex > *{flex:1;}
-
-.links a{display:block;color:#38bdf8;margin:5px 0;}
+.flex>*{flex:1;}
 
 .flash{animation:flash 1s infinite;}
 @keyframes flash{
 0%,50%,100%{color:#f43f5e;}
 25%,75%{color:#22c55e;}
 }
+
+.links a{display:block;color:#38bdf8;margin:5px 0;}
 </style>
 </head>
 
@@ -41,11 +43,9 @@ button{background:#f43f5e;color:#fff;font-weight:bold;}
 
 <h1>RO’Lyfe Deal Closing Terminal</h1>
 
-<img src="your-logo.png" style="width:140px;display:block;margin:auto;">
-
 <!-- INTAKE -->
 <div class="card">
-<h2>Quick Deal Intake</h2>
+<h2>Deal Intake</h2>
 
 <select id="role">
 <option>Who are you?</option>
@@ -63,229 +63,230 @@ button{background:#f43f5e;color:#fff;font-weight:bold;}
 <option>No</option>
 </select>
 
-<input id="purchase" placeholder="Purchase Price / Amount Owed">
-<input id="rehab" placeholder="Rehab Cost">
-<input id="asIs" placeholder="As-Is Value">
-<input id="credit" placeholder="Credit Score">
-<textarea id="notes" placeholder="Deal Notes"></textarea>
+<select id="dealType">
+<option>Deal Type</option>
+<option>Fix & Flip</option>
+<option>Wholesale</option>
+<option>Buy & Hold</option>
+<option>Refinance</option>
+</select>
 
-</div>
-
-<!-- PROPERTY -->
-<h2>Property Analyzer</h2>
-
+<input id="purchase" placeholder="Purchase Price">
+<input id="rehab" placeholder="Estimated Rehab">
+<input id="arv" placeholder="ARV (Zestimate)">
 <input id="address" value="5503 West Blvd, Youngstown, OH 44512">
+
 <button onclick="openZillow()">Check Zillow</button>
 
-<input id="arv" value="309900" placeholder="Paste ARV">
-
-<div class="flex">
-<button onclick="runDeal()">Analyze</button>
-<button onclick="resetAll()">Reset</button>
 </div>
+
+<!-- INSPECTION -->
+<div class="card">
+<h2>Inspection / Rehab Estimator</h2>
+
+<input id="roof" placeholder="Roof Repair ($)">
+<input id="kitchen" placeholder="Kitchen ($)">
+<input id="bath" placeholder="Bathrooms ($)">
+<input id="flooring" placeholder="Flooring ($)">
+<input id="paint" placeholder="Paint ($)">
+<input id="other" placeholder="Other Repairs ($)">
+
+<button onclick="calcRehab()">Calculate Rehab</button>
+<div id="rehabOut"></div>
+
+</div>
+
+<!-- DEAL -->
+<button onclick="runDeal()">Analyze Deal</button>
+<button onclick="resetAll()">Reset</button>
 
 <div id="results"></div>
 
 <!-- OVERAGE -->
-<h2>Overage Breakdown</h2>
 <div id="overageBox"></div>
+
+<!-- AGREEMENT -->
+<div class="card">
+<h2>Offer Agreement Generator</h2>
+
+<input id="buyerName" placeholder="Buyer Name">
+<input id="sellerName" placeholder="Seller Name">
+
+<button onclick="generateAgreement()">Generate LOI</button>
+<div id="agreement"></div>
+</div>
 
 <!-- ACTION -->
 <div class="flex">
-<button onclick="sendText()">Text</button>
-<button onclick="sendEmail()">Email</button>
+<button onclick="sendToLO()">Send to Loan Officer</button>
+<button onclick="blastInvestors()">Blast Investors</button>
 </div>
-<button onclick="sendInvestor()">Send to Investors</button>
-<button onclick="generatePDF()">Generate PDF</button>
 
-<!-- SAVED -->
-<h2>Saved Deals</h2>
-<div id="saved"></div>
+<button onclick="generatePDF()">Download Deal PDF</button>
 
 <!-- TAX -->
-<h2>Tax Lien Calculator</h2>
+<div class="card">
+<h2>Tax Lien</h2>
 <input id="lien" value="80000">
 <input id="rate" value="12">
 <input id="years" value="30">
 <button onclick="calcLien()">Calculate</button>
 <div id="lienOut"></div>
+</div>
 
 <!-- LINKS -->
-<h2>Funding Links</h2>
 <div class="links">
-<a href="https://form.jotform.com/252063354378055">Funding Application</a>
-<a href="https://form.jotform.com/253154859148062">Document Upload</a>
+<h2>Funding</h2>
+<a href="https://form.jotform.com/252063354378055">Funding App</a>
+<a href="https://form.jotform.com/253154859148062">Upload Docs</a>
 <a href="https://app.sendfuse.com/dashboard">Sendfuse</a>
-</div>
-
-<!-- DROPBOX -->
-<div class="card">
-<h2>Upload Docs</h2>
-<iframe src="https://form.jotform.com/253154859148062"
-style="width:100%;height:400px;border:none;"></iframe>
+<a href="#">POF (Coming Soon)</a>
 </div>
 
 </div>
-
-<!-- AI AGENT -->
-<div id="agent" style="position:fixed;bottom:20px;right:20px;width:350px;background:#111;padding:10px;border-radius:10px;display:none;">
-<iframe src="https://www.jotform.com/agent/019a5b67fad97a4db24b28e44f970158c0f1"
-style="width:100%;height:400px;border:none;"></iframe>
-<button onclick="closeAgent()">Close</button>
-</div>
-
-<button onclick="openAgent()" style="position:fixed;bottom:20px;right:20px;">AI</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 
-let deals = JSON.parse(localStorage.getItem("deals")) || [];
-let currentDeal = null;
+let deal=null;
 
 // Zillow
 function openZillow(){
-let a = document.getElementById("address").value;
+let a=address.value;
 window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
+}
+
+// Rehab calc
+function calcRehab(){
+let total = ["roof","kitchen","bath","flooring","paint","other"]
+.reduce((sum,id)=>sum+(parseFloat(document.getElementById(id).value)||0),0);
+
+rehabOut.innerHTML=`<div class="card">Total Rehab: $${total.toLocaleString()}</div>`;
 }
 
 // Mortgage
 function mortgage(P,r,n){
-r=r/100/12;
-n=n*12;
+r=r/100/12;n=n*12;
 return P*(r*(1+r)**n)/((1+r)**n-1);
 }
 
-// RUN DEAL
+// DEAL ENGINE
 function runDeal(){
 
-let arv = parseFloat(document.getElementById("arv").value);
-let address = document.getElementById("address").value;
+let arv=parseFloat(document.getElementById("arv").value);
+let purchase=parseFloat(document.getElementById("purchase").value)||0;
+let rehab=parseFloat(document.getElementById("rehab").value)||0;
 
-if(!arv) return alert("Enter ARV");
+let totalCost = purchase + rehab;
 
-// Offers
-let cash = arv * 0.5;
-let carry = arv * 0.65;
-let finance = arv * 0.75;
+let cash=arv*0.5;
+let carry=arv*0.65;
+let finance=arv*0.75;
 
-// Carry terms
-let down = carry * 0.05;
-let loan = carry - down;
-let pay = mortgage(loan,5,30);
-let balloon = loan - (pay * 48);
-
-// Finance terms
-let pay2 = mortgage(finance,6,30);
-let balloon2 = finance - (pay2 * 60);
-
-// Overage
-let spread = arv - cash;
+let spread = arv - totalCost;
 let fee = spread * 0.3;
 
-// SCORE
-let score = (spread / arv) * 100;
-let label = score > 40 ? "🔥 STEAL" : score > 25 ? "✅ GOOD" : "⚠️ LOW";
+// scoring logic
+let score, label, color;
 
-currentDeal = {address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2,fee};
+if(spread/arv > 0.4){label="🔥 STEAL";color="good";}
+else if(spread/arv > 0.25){label="✅ SOLID";color="warn";}
+else{label="⚠️ RISKY";color="bad";}
 
-deals.push(currentDeal);
-localStorage.setItem("deals",JSON.stringify(deals));
+// payments
+let pay= mortgage(carry,5,30);
+let pay2= mortgage(finance,6,30);
 
-// RESULT
-document.getElementById("results").innerHTML = `
+deal={arv,purchase,rehab,spread,fee,address:address.value};
+
+results.innerHTML=`
 <div class="card">
-<h3>${address} <span class="flash">${label}</span></h3>
-ARV: $${arv.toLocaleString()}<br><br>
+<h3 class="${color}">${label}</h3>
+
+ARV: $${arv.toLocaleString()}<br>
+Total Cost: $${totalCost.toLocaleString()}<br>
+Spread: $${spread.toLocaleString()}<br>
 
 All Cash: $${cash.toLocaleString()}<br>
 Seller Carry: $${carry.toLocaleString()}<br>
-Down: $${down.toFixed(0)}<br>
 Payment: $${pay.toFixed(0)}/mo<br>
-Balloon: $${balloon.toFixed(0)}<br><br>
 
 Seller Finance: $${finance.toLocaleString()}<br>
 Payment: $${pay2.toFixed(0)}/mo<br>
-Balloon: $${balloon2.toFixed(0)}<br><br>
 
-Overage Fee: $${fee.toFixed(0)}
+Your Fee: $${fee.toLocaleString()}
 </div>
 `;
 
-// OVERAGE BOX
-document.getElementById("overageBox").innerHTML = `
+overageBox.innerHTML=`
 <div class="card">
-Overage Spread: $${spread.toLocaleString()}<br>
-Your Fee (30%): $${fee.toLocaleString()}
+Overage Result: $${spread.toLocaleString()}<br>
+Your 30% Fee: $${fee.toLocaleString()}
 </div>
 `;
 
-renderSaved();
 }
 
-// SAVED CLEAN
-function renderSaved(){
-let s=document.getElementById("saved");
-s.innerHTML="";
+// AGREEMENT
+function generateAgreement(){
+let buyer=buyerName.value;
+let seller=sellerName.value;
 
-let unique=[...new Map(deals.map(d=>[d.address,d])).values()];
+agreement.innerHTML=`
+<div class="card">
+LOI AGREEMENT<br><br>
 
-unique.forEach(d=>{
-s.innerHTML += `<div class="card">${d.address} - $${d.arv.toLocaleString()}</div>`;
-});
+Buyer: ${buyer}<br>
+Seller: ${seller}<br>
+Property: ${address.value}<br>
+Offer Based On ARV: $${arv.value}<br>
+
+Terms:
+- Subject to inspection
+- Assignment allowed
+- Closing within 30 days
+
+Sign Below:
+
+___________________
+Seller Signature
+
+___________________
+Buyer Signature
+</div>
+`;
 }
 
-// TEXT
-function sendText(){
-if(!currentDeal) return;
-window.location.href=`sms:2158085844?body=${currentDeal.address}`;
+// SEND
+function sendToLO(){
+window.location.href="mailto:richman@rootoflyfe.com?subject=Deal Submission&body="+address.value;
 }
 
-// EMAIL
-function sendEmail(){
-if(!currentDeal) return;
-window.location.href=`mailto:richman@rootoflyfe.com?subject=Deal&body=${currentDeal.address}`;
-}
-
-// INVESTOR
-function sendInvestor(){
-if(!currentDeal) return;
-window.location.href=`mailto:?subject=Deal&body=${currentDeal.address}`;
+function blastInvestors(){
+window.location.href="mailto:?subject=Investor Deal&body="+address.value;
 }
 
 // PDF
 function generatePDF(){
-if(!currentDeal) return;
-
-const { jsPDF } = window.jspdf;
-let doc = new jsPDF();
+const {jsPDF}=window.jspdf;
+let doc=new jsPDF();
 
 doc.text("RO’Lyfe Deal",10,10);
-doc.text(currentDeal.address,10,20);
-doc.text("ARV: "+currentDeal.arv,10,30);
-doc.text("Cash: "+currentDeal.cash,10,40);
-doc.text("Fee: "+currentDeal.fee,10,50);
+doc.text(address.value,10,20);
 
 doc.save("deal.pdf");
 }
 
 // TAX
 function calcLien(){
-let l = parseFloat(lien.value);
-let r = parseFloat(rate.value)/100;
-let y = parseFloat(years.value);
-let t = l*(1+r*y);
-lienOut.innerHTML = `<div class="card">Total $${t.toFixed(0)}</div>`;
+let l=lien.value,r=rate.value/100,y=years.value;
+let t=l*(1+r*y);
+lienOut.innerHTML=`<div class="card">$${t.toFixed(0)}</div>`;
 }
 
 // RESET
 function resetAll(){location.reload();}
-
-// AI
-function openAgent(){agent.style.display="block";}
-function closeAgent(){agent.style.display="none";}
-
-renderSaved();
 
 </script>
 
