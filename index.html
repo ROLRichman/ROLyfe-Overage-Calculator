@@ -8,228 +8,285 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:12px;}
-.container {max-width:700px;margin:auto;}
-h1,h2 {text-align:center;color:#f43f5e;}
-input,select,button {width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none;font-size:16px;}
-button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
-.card {background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
-.good {color:#22c55e;}
-.bad {color:#ef4444;}
-.links a {display:block;color:#38bdf8;margin:3px 0;}
-.flex-row {display:flex;gap:10px;}
-.flex-row > * {flex:1;}
-.flash {animation: flash 1s infinite;}
-@keyframes flash {0%,50%,100% {color:#f43f5e;} 25%,75% {color:#22c55e;}}
+body{font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:12px;}
+.container{max-width:720px;margin:auto;}
+h1,h2{text-align:center;color:#f43f5e;}
+
+input,select,textarea,button{
+width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px;
+}
+
+button{background:#f43f5e;color:#fff;font-weight:bold;}
+
+.card{background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+.good{color:#22c55e;}
+.bad{color:#ef4444;}
+
+.flex{display:flex;gap:10px;}
+.flex > *{flex:1;}
+
+.links a{display:block;color:#38bdf8;margin:5px 0;}
+
+.flash{animation:flash 1s infinite;}
+@keyframes flash{
+0%,50%,100%{color:#f43f5e;}
+25%,75%{color:#22c55e;}
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <h1>RO’Lyfe Deal Closing Terminal</h1>
 
-<img src="your-logo.png" alt="RO’Lyfe Logo" class="logo" style="width:150px;margin:auto;display:block;">
+<img src="your-logo.png" style="width:140px;display:block;margin:auto;">
 
-<h2>Property Analyzer</h2>
-<input id="address" placeholder="Enter Property Address" value="5917 Old York Rd, Philadelphia, PA 19141">
-<button onclick="openZillow()">Check Zillow Value</button>
+<!-- INTAKE -->
+<div class="card">
+<h2>Quick Deal Intake</h2>
 
-<input id="arv" placeholder="Paste Zestimate / ARV" value="350000">
-
-<select id="mode">
-<option value="investor">Investor Deal</option>
-<option value="seller">Seller Deal</option>
+<select id="role">
+<option>Who are you?</option>
+<option>Investor</option>
+<option>Wholesaler</option>
+<option>Contractor</option>
+<option>Realtor</option>
+<option>Buyer</option>
+<option>Seller</option>
 </select>
 
-<div class="flex-row">
-<input id="name" placeholder="Your Name" value="Richman R.O.L">
-<input id="phone" placeholder="Phone" value="2674326734">
-</div>
-<input id="email" placeholder="Email" value="rootoflyfe@gmail.com">
+<select id="contract">
+<option>Do you have a deal under contract?</option>
+<option>Yes</option>
+<option>No</option>
+</select>
 
-<div class="flex-row">
-<button onclick="runDeal()">Analyze Deal</button>
+<input id="purchase" placeholder="Purchase Price / Amount Owed">
+<input id="rehab" placeholder="Rehab Cost">
+<input id="asIs" placeholder="As-Is Value">
+<input id="credit" placeholder="Credit Score">
+<textarea id="notes" placeholder="Deal Notes"></textarea>
+
+</div>
+
+<!-- PROPERTY -->
+<h2>Property Analyzer</h2>
+
+<input id="address" value="5503 West Blvd, Youngstown, OH 44512">
+<button onclick="openZillow()">Check Zillow</button>
+
+<input id="arv" value="309900" placeholder="Paste ARV">
+
+<div class="flex">
+<button onclick="runDeal()">Analyze</button>
 <button onclick="resetAll()">Reset</button>
 </div>
 
 <div id="results"></div>
 
-<h2>Overage Calculator</h2>
-<div class="card" id="overage">
-<p>5917 Old York Rd, Philadelphia, PA 19141</p>
-<p>ARV: $350,000</p>
-<p>All Cash: $175,000</p>
-<p>Seller Carry: $227,500</p>
-<p>Down: $11,375</p>
-<p>Payment: $1,160/mo</p>
-<p>Balloon: $160,435</p>
-<p>Seller Financing: $262,500</p>
-<p>Payment: $1,574/mo</p>
-<p>Balloon: $168,071</p>
-<p><strong>Overage Result:</strong> $105,000</p>
-</div>
+<!-- OVERAGE -->
+<h2>Overage Breakdown</h2>
+<div id="overageBox"></div>
 
-<div class="flex-row">
-<button onclick="sendText()">Text Deal</button>
-<button onclick="sendEmail()">Email Deal</button>
+<!-- ACTION -->
+<div class="flex">
+<button onclick="sendText()">Text</button>
+<button onclick="sendEmail()">Email</button>
 </div>
-<button onclick="sendInvestor()">Send This Deal to Investors</button>
-<button onclick="generatePDF()">Generate Offer PDF</button>
+<button onclick="sendInvestor()">Send to Investors</button>
+<button onclick="generatePDF()">Generate PDF</button>
 
+<!-- SAVED -->
 <h2>Saved Deals</h2>
 <div id="saved"></div>
 
+<!-- TAX -->
 <h2>Tax Lien Calculator</h2>
-<input id="lien" placeholder="Lien Amount" value="80000">
-<input id="rate" placeholder="Interest %" value="12">
-<input id="years" placeholder="Years" value="30">
+<input id="lien" value="80000">
+<input id="rate" value="12">
+<input id="years" value="30">
 <button onclick="calcLien()">Calculate</button>
 <div id="lienOut"></div>
 
-<h2>Funding & Credit Links</h2>
+<!-- LINKS -->
+<h2>Funding Links</h2>
 <div class="links">
-<a href="https://www.7figurescredit.com/?a_aid=ROLFunding" target="_blank">7Figures Credit</a>
-<a href="https://go.mypartner.io/referral-partner/?ref=001Qk00000MkqgTIAR" target="_blank">Corporate Credit Partner</a>
-<a href="https://my.americasfundingexperts.com/?id=1820217000190862001" target="_blank">Americas Funding Experts</a>
-<a href="https://getyourbizloan.io/lp1?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP1</a>
-<a href="https://getyourbizloan.io/lp2?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP2</a>
-<a href="https://form.jotform.com/2530967310210469" target="_blank">Funding Application</a>
-<a href="https://form.jotform.com/253154859148062" target="_blank">Quick Document Upload</a>
-<a href="https://app.sendfuse.com/dashboard" target="_blank">Sendfuse Dashboard</a>
+<a href="https://form.jotform.com/252063354378055">Funding Application</a>
+<a href="https://form.jotform.com/253154859148062">Document Upload</a>
+<a href="https://app.sendfuse.com/dashboard">Sendfuse</a>
 </div>
 
-<h2>How This Works</h2>
-<ul>
-<li>Step 1: Enter property → click Zillow</li>
-<li>Step 2: Copy Zestimate (market value) → paste above</li>
-<li>Step 3: System calculates hidden profit, fees, and financing options</li>
-<li>Step 4: Click “Send This Deal to Investors” to auto-share</li>
-</ul>
+<!-- DROPBOX -->
+<div class="card">
+<h2>Upload Docs</h2>
+<iframe src="https://form.jotform.com/253154859148062"
+style="width:100%;height:400px;border:none;"></iframe>
+</div>
 
-<h2>Examples</h2>
-<ul>
-<li>Foreclosure → seller under pressure → discounted deal</li>
-<li>Family sale → below market price</li>
-<li>Off-market → investor spread opportunity</li>
-</ul>
+</div>
+
+<!-- AI AGENT -->
+<div id="agent" style="position:fixed;bottom:20px;right:20px;width:350px;background:#111;padding:10px;border-radius:10px;display:none;">
+<iframe src="https://www.jotform.com/agent/019a5b67fad97a4db24b28e44f970158c0f1"
+style="width:100%;height:400px;border:none;"></iframe>
+<button onclick="closeAgent()">Close</button>
+</div>
+
+<button onclick="openAgent()" style="position:fixed;bottom:20px;right:20px;">AI</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-// Deal storage
-let currentDeal=null;
-let deals=JSON.parse(localStorage.getItem("deals"))||[];
 
-// Open Zillow / Redfin
+<script>
+
+let deals = JSON.parse(localStorage.getItem("deals")) || [];
+let currentDeal = null;
+
+// Zillow
 function openZillow(){
-let a=document.getElementById("address").value;
-if(!a) return alert("Enter address");
+let a = document.getElementById("address").value;
 window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
 }
 
-// Mortgage calc
+// Mortgage
 function mortgage(P,r,n){
 r=r/100/12;
 n=n*12;
 return P*(r*(1+r)**n)/((1+r)**n-1);
 }
 
-// Run Deal
+// RUN DEAL
 function runDeal(){
-let arv=parseFloat(document.getElementById("arv").value);
-let address=document.getElementById("address").value;
-if(!arv || !address) return alert("Address & ARV required");
 
-let cash=arv*0.5;
-let carry=arv*0.65;
-let finance=arv*0.75;
+let arv = parseFloat(document.getElementById("arv").value);
+let address = document.getElementById("address").value;
 
-// Down, Payments, Balloon
-let down=carry*0.05;
-let loan=carry-down;
-let pay= mortgage(loan,5,30);
-let balloon=loan - (pay*48);
+if(!arv) return alert("Enter ARV");
 
-let pay2=mortgage(finance,6,30);
-let balloon2=finance-(pay2*60);
+// Offers
+let cash = arv * 0.5;
+let carry = arv * 0.65;
+let finance = arv * 0.75;
 
-// Overage = 30% fee
-let overage=(arv - carry)*0.3;
+// Carry terms
+let down = carry * 0.05;
+let loan = carry - down;
+let pay = mortgage(loan,5,30);
+let balloon = loan - (pay * 48);
 
-currentDeal={address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2,overage};
+// Finance terms
+let pay2 = mortgage(finance,6,30);
+let balloon2 = finance - (pay2 * 60);
+
+// Overage
+let spread = arv - cash;
+let fee = spread * 0.3;
+
+// SCORE
+let score = (spread / arv) * 100;
+let label = score > 40 ? "🔥 STEAL" : score > 25 ? "✅ GOOD" : "⚠️ LOW";
+
+currentDeal = {address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2,fee};
+
 deals.push(currentDeal);
 localStorage.setItem("deals",JSON.stringify(deals));
 
-document.getElementById("results").innerHTML=`
+// RESULT
+document.getElementById("results").innerHTML = `
 <div class="card">
-<h3>${address} <span class="flash">🔥 This deal is a steal!</span></h3>
-<p>ARV: $${arv.toLocaleString()}</p>
-<p class="good">All Cash: $${cash.toLocaleString()}</p>
-<p class="good">Seller Carry: $${carry.toLocaleString()}</p>
-Down: $${down.toLocaleString()}<br>
+<h3>${address} <span class="flash">${label}</span></h3>
+ARV: $${arv.toLocaleString()}<br><br>
+
+All Cash: $${cash.toLocaleString()}<br>
+Seller Carry: $${carry.toLocaleString()}<br>
+Down: $${down.toFixed(0)}<br>
 Payment: $${pay.toFixed(0)}/mo<br>
-Balloon: $${balloon.toFixed(0)}
-<p class="good">Seller Financing: $${finance.toLocaleString()}</p>
+Balloon: $${balloon.toFixed(0)}<br><br>
+
+Seller Finance: $${finance.toLocaleString()}<br>
 Payment: $${pay2.toFixed(0)}/mo<br>
-Balloon: $${balloon2.toFixed(0)}
-<p class="good">Overage Fee (30%): $${overage.toLocaleString()}</p>
-</div>`;
+Balloon: $${balloon2.toFixed(0)}<br><br>
+
+Overage Fee: $${fee.toFixed(0)}
+</div>
+`;
+
+// OVERAGE BOX
+document.getElementById("overageBox").innerHTML = `
+<div class="card">
+Overage Spread: $${spread.toLocaleString()}<br>
+Your Fee (30%): $${fee.toLocaleString()}
+</div>
+`;
+
 renderSaved();
 }
 
-// Saved deals dashboard
+// SAVED CLEAN
 function renderSaved(){
 let s=document.getElementById("saved");
 s.innerHTML="";
-deals.forEach(d=>{
-s.innerHTML+=`<div class="card">${d.address} - ARV: $${d.arv.toLocaleString()}</div>`;
+
+let unique=[...new Map(deals.map(d=>[d.address,d])).values()];
+
+unique.forEach(d=>{
+s.innerHTML += `<div class="card">${d.address} - $${d.arv.toLocaleString()}</div>`;
 });
 }
 
-// Text / Email / Investor
+// TEXT
 function sendText(){
-if(!currentDeal) return alert("No deal");
-let msg=`Deal: ${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()} Overage $${currentDeal.overage.toLocaleString()}`;
-window.location.href=`sms:2158085844?body=${encodeURIComponent(msg)}`;
-}
-function sendEmail(){
-if(!currentDeal) return alert("No deal");
-window.location.href=`mailto:richman@rootoflyfe.com?subject=RO’Lyfe Deal&body=${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()} Overage $${currentDeal.overage.toLocaleString()}`;
-}
-function sendInvestor(){
-if(!currentDeal) return alert("No deal");
-window.location.href=`mailto:?subject=Investor Deal&body=${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()} Overage $${currentDeal.overage.toLocaleString()}`;
+if(!currentDeal) return;
+window.location.href=`sms:2158085844?body=${currentDeal.address}`;
 }
 
-// PDF Generator
+// EMAIL
+function sendEmail(){
+if(!currentDeal) return;
+window.location.href=`mailto:richman@rootoflyfe.com?subject=Deal&body=${currentDeal.address}`;
+}
+
+// INVESTOR
+function sendInvestor(){
+if(!currentDeal) return;
+window.location.href=`mailto:?subject=Deal&body=${currentDeal.address}`;
+}
+
+// PDF
 function generatePDF(){
-if(!currentDeal) return alert("No deal");
+if(!currentDeal) return;
+
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
-doc.text(`RO’Lyfe Deal Offer`, 10, 10);
-doc.text(`Address: ${currentDeal.address}`,10,20);
-doc.text(`ARV: $${currentDeal.arv.toLocaleString()}`,10,30);
-doc.text(`All Cash: $${currentDeal.cash.toLocaleString()}`,10,40);
-doc.text(`Seller Carry: $${currentDeal.carry.toLocaleString()}`,10,50);
-doc.text(`Seller Finance: $${currentDeal.finance.toLocaleString()}`,10,60);
-doc.text(`Overage Fee (30%): $${currentDeal.overage.toLocaleString()}`,10,70);
-doc.save("ROLyfe_Deal.pdf");
+
+doc.text("RO’Lyfe Deal",10,10);
+doc.text(currentDeal.address,10,20);
+doc.text("ARV: "+currentDeal.arv,10,30);
+doc.text("Cash: "+currentDeal.cash,10,40);
+doc.text("Fee: "+currentDeal.fee,10,50);
+
+doc.save("deal.pdf");
 }
 
-// Tax Lien
+// TAX
 function calcLien(){
-let l=parseFloat(document.getElementById("lien").value);
-let r=parseFloat(document.getElementById("rate").value)/100;
-let y=parseFloat(document.getElementById("years").value);
-if(!l || !r || !y) return alert("Enter all fields");
-let t=l*(1+r*y);
-document.getElementById("lienOut").innerHTML=`<div class="card">Total $${t.toFixed(0)}</div>`;
+let l = parseFloat(lien.value);
+let r = parseFloat(rate.value)/100;
+let y = parseFloat(years.value);
+let t = l*(1+r*y);
+lienOut.innerHTML = `<div class="card">Total $${t.toFixed(0)}</div>`;
 }
 
-// Reset
+// RESET
 function resetAll(){location.reload();}
 
+// AI
+function openAgent(){agent.style.display="block";}
+function closeAgent(){agent.style.display="none";}
+
 renderSaved();
+
 </script>
 
 </body>
