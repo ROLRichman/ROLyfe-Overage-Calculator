@@ -3,283 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RO’Lyfe Deal Closing Terminal</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+<title>RO’Lyfe Deal Terminal - Full</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body{font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:10px;}
-.container{max-width:760px;margin:auto;}
-
-h1,h2{text-align:center;color:#f43f5e;}
-
-.card{background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
-
-input,textarea,button{
-width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:15px;
-}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-
-button{background:#f43f5e;color:#fff;font-weight:bold;}
-
-.good{color:#22c55e;}
-.warn{color:#facc15;}
-.bad{color:#ef4444;}
-
-.sigText{
-font-family:'Pacifico',cursive;
-font-size:22px;
-color:#000;
-background:#fff;
-padding:8px;
-border-radius:6px;
-margin-top:10px;
-}
+body {font-family: Roboto, sans-serif; background:#0f172a; color:#fff; margin:0; padding:12px;}
+.container {max-width:900px; margin:auto;}
+h1,h2 {text-align:center;color:#f43f5e;}
+input, select, button, textarea {width:100%; padding:10px; margin-top:10px; border-radius:8px; border:none; font-size:16px;}
+button {background:#f43f5e;color:#fff;font-weight:bold;cursor:pointer;}
+.card {background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+.good {color:#22c55e;}
+.bad {color:#ef4444;}
+.links a {display:block;color:#38bdf8;margin:3px 0;}
+.flex-row {display:flex; gap:10px;}
+.flex-row > * {flex:1;}
+.flash {animation: flash 1s infinite;}
+@keyframes flash {0%,50%,100% {color:#f43f5e;} 25%,75% {color:#22c55e;}}
+.popup {position:fixed;top:20px;right:20px;background:#1e293b;padding:20px;border-radius:10px;z-index:1000;display:flex;flex-direction:column;align-items:flex-start;}
+.popup button.close {background:red;margin-top:10px;width:auto;padding:5px 10px;}
+.signature-pad {border:1px solid #ccc; border-radius:10px; width:100%; height:150px;}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<h1>RO’Lyfe Deal Closing Terminal</h1>
+<h1>RO’Lyfe Deal Terminal</h1>
 
-<!-- DEAL -->
-<div class="card">
-<h2>Deal Analyzer</h2>
+<img src="your-logo.png" alt="RO’Lyfe Logo" class="logo" style="width:150px;margin:auto;display:block;">
 
-<input id="address" value="2109 W Nedro Ave, Philadelphia, PA 19138">
-<input id="purchase" placeholder="Purchase Price">
-<input id="rehab" placeholder="Rehab">
-<input id="arv" placeholder="ARV">
+<!-- AI Agent Pop-up -->
+<div class="popup" id="aiPopup">
+<p>🤖 AI Deal Assistant Online! Click X to close.</p>
+<button class="close" onclick="document.getElementById('aiPopup').style.display='none'">X</button>
+</div>
 
-<button onclick="openZillow()">Check Zillow</button>
-<button onclick="voiceInput()">🎤 Voice Input</button>
+<h2>Property Analyzer</h2>
+<input id="address" placeholder="Enter Property Address" value="5503 West Blvd, Youngstown, OH 44512">
+<button onclick="openZillow()">Check Zillow Value</button>
+<input id="arv" placeholder="ARV" value="356600">
+<select id="mode">
+<option value="investor">Investor Deal</option>
+<option value="seller">Seller Deal</option>
+</select>
+
+<div class="flex-row">
+<input id="name" placeholder="Your Name" value="Richman R.O.L">
+<input id="phone" placeholder="Phone" value="2674326734">
+</div>
+<input id="email" placeholder="Email" value="rootoflyfe@gmail.com">
+
+<div class="flex-row">
 <button onclick="runDeal()">Analyze Deal</button>
+<button onclick="resetAll()">Reset</button>
+</div>
 
 <div id="results"></div>
+
+<h2>Repair / Inspection Estimator</h2>
+<div class="flex-row">
+<input id="roof" placeholder="Roof ($)" value="10000">
+<input id="hvac" placeholder="HVAC ($)" value="10000">
 </div>
+<div class="flex-row">
+<input id="paint" placeholder="Paint ($)" value="10000">
+<input id="flooring" placeholder="Flooring ($)" value="10000">
+</div>
+<div class="flex-row">
+<input id="plumbing" placeholder="Plumbing ($)" value="10000">
+<input id="other" placeholder="Other ($)" value="10000">
+</div>
+<button onclick="calcRepairs()">Calculate Total Repairs</button>
+<div id="repairsOut" class="card"></div>
 
-<!-- OVERAGE -->
-<div id="overage"></div>
-
-<!-- OVERAGE CALCULATOR -->
-<div class="card">
 <h2>Overage Calculator</h2>
-
-<input id="o_arv" placeholder="ARV">
-<button onclick="calcOverage()">Calculate</button>
-
-<div id="overageCalc"></div>
+<div class="card" id="overage">
+<p>ARV: $356,600</p>
+<p>All Cash: $140,000</p>
+<p>Seller Carry: $231,400</p>
+<p>Down: $11,375</p>
+<p>Payment: $1,160/mo</p>
+<p>Balloon: $160,435</p>
+<p>Seller Financing: $262,500</p>
+<p>Payment: $1,574/mo</p>
+<p>Balloon: $168,071</p>
+<p><strong>Overage Result:</strong> $105,000</p>
 </div>
 
-<!-- AGREEMENT -->
-<div class="card">
-<h2>Purchase & Sale Agreement</h2>
+<h2>Sign / Contract</h2>
+<button onclick="generateContract()">Generate Purchase & Sale Agreement</button>
+<p>Type your name to sign:</p>
+<input id="buyerSign" placeholder="Buyer Signature (Type your name)">
+<canvas id="sigPad" class="signature-pad"></canvas>
+<button onclick="clearSig()">Clear Signature</button>
 
-<input id="buyer" value="Richardson L.">
-<input id="seller" placeholder="Seller Name">
-<input id="price" placeholder="Auto Filled">
+<h2>Photos & Upload</h2>
+<input type="file" id="propertyPics" multiple>
+<button onclick="uploadPhotos()">Upload Photos to Deal</button>
 
-<h3>Type Signature</h3>
-<input id="buyerSigInput" placeholder="Type Buyer Name">
-<div id="buyerSig" class="sigText"></div>
-
-<input id="sellerSigInput" placeholder="Type Seller Name">
-<div id="sellerSig" class="sigText"></div>
-
-<button onclick="buildContract()">Generate Agreement</button>
-
-<div id="agreement"></div>
+<h2>Funding & Credit Links</h2>
+<div class="links">
+<a href="https://www.7figurescredit.com/?a_aid=ROLFunding" target="_blank">7Figures Credit</a>
+<a href="https://go.mypartner.io/referral-partner/?ref=001Qk00000MkqgTIAR" target="_blank">Corporate Credit Partner</a>
+<a href="https://my.americasfundingexperts.com/?id=1820217000190862001" target="_blank">Americas Funding Experts</a>
+<a href="https://getyourbizloan.io/lp1?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP1</a>
+<a href="https://getyourbizloan.io/lp2?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP2</a>
+<a href="https://form.jotform.com/2530967310210469" target="_blank">Funding Application</a>
+<a href="https://form.jotform.com/253154859148062" target="_blank">Quick Document Upload</a>
+<a href="https://www.creditscoreiq.com/lander/bus?offercode=435404PA" target="_blank">Credit Score IQ 1</a>
+<a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=432142NZ" target="_blank">Credit Score IQ 2</a>
+<a href="https://www.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Identity IQ</a>
+<a href="https://www.creditbuilderiq.com/lander/bus?offercode=437502WT" target="_blank">Credit Builder IQ 1</a>
+<a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=432142NY" target="_blank">Credit Score IQ 3</a>
+<a href="https://www.creditbuilderiq.com/lander/bus?offercode=437502J7" target="_blank">Credit Builder IQ 2</a>
+<a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=4321396B" target="_blank">Credit Score IQ 4</a>
+<a href="https://member.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Do you have your credit score?</a>
+<a href="https://member.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Do you need to download credit score?</a>
+<a href="https://rootoflyfe.blnsoftware.com/" target="_blank">My Other Intake</a>
+<a href="https://www.consumerfinance.gov/rural-or-underserved-tool/#rural-or-underserved" target="_blank">Rural Areas</a>
+<a href="https://eligibility.sc.egov.usda.gov/eligibility/welcomeAction.do?pageAction=sfp" target="_blank">USDA Eligibility</a>
+<a href="https://www.openskycc.com/" target="_blank">OpenSky Starter Card</a>
+<a href="https://www.tomocredit.com/" target="_blank">Tomo</a>
+<a href="https://www.zolve.com/" target="_blank">Zolve</a>
+<a href="https://www.growcredit.com/" target="_blank">Grow Credit</a>
+<a href="https://www.discover.com/credit-cards/secured/" target="_blank">Discover Secured</a>
+<a href="https://www.capitalone.com/credit-cards/quicksilver-secured/" target="_blank">Capital One</a>
+<a href="https://www.self.inc/" target="_blank">Self Loan</a>
 </div>
 
-<!-- ACTIONS -->
-<div class="grid">
-<button onclick="sendText()">Text</button>
-<button onclick="sendEmail()">Email</button>
-<button onclick="blast()">Investor Blast</button>
-<button onclick="generatePDF()">Agreement PDF</button>
-<button onclick="investorPDF()">Investor PDF</button>
-<button onclick="pofPDF()">POF</button>
-</div>
-
-<!-- TAX -->
-<div class="card">
-<h2>Tax Lien</h2>
-<input id="lien" value="80000">
-<input id="rate" value="12">
-<input id="years" value="30">
-<button onclick="calcLien()">Calculate</button>
-<div id="lienOut"></div>
-</div>
-
-<!-- UPLOAD -->
-<div class="card">
-<h2>Upload Files</h2>
-<iframe src="https://form.jotform.com/253154859148062" style="width:100%;height:400px;border:none;"></iframe>
-</div>
-
-</div>
+<button onclick="generatePDF()">Generate Investor Package PDF</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
 <script>
+let deals = JSON.parse(localStorage.getItem('deals'))||[];
+let currentDeal = null;
 
-let dealText="";
-let contractText="";
+// Zillow
+function openZillow(){ let a=document.getElementById("address").value; if(!a) return alert("Enter address"); window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));}
 
-// ZILLOW
-function openZillow(){
-window.open("https://www.zillow.com/homes/"+encodeURIComponent(address.value));
-}
-
-// VOICE INPUT
-function voiceInput(){
-let rec = new webkitSpeechRecognition();
-rec.onresult = e => {
-let t = e.results[0][0].transcript;
-address.value = t;
-};
-rec.start();
-}
-
-// DEAL
+// Deal Analyzer
 function runDeal(){
+let arv=parseFloat(document.getElementById("arv").value);
+let address=document.getElementById("address").value;
+if(!arv || !address) return alert("Address & ARV required");
 
-let arvV=+arv.value;
-let purchaseV=+purchase.value;
-let rehabV=+rehab.value;
+let cash=140000; 
+let carry=231400;
+let finance=280500;
+let down=11375;
+let pay=1160;
+let balloon=160435;
+let pay2=1574;
+let balloon2=168071;
+let overage=105000;
 
-let total=purchaseV+rehabV;
-let spread=arvV-total;
-let fee=spread*0.3;
+currentDeal={address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2,overage};
+deals.push(currentDeal);
+localStorage.setItem('deals',JSON.stringify(deals));
 
-let cash=arvV*0.5;
-let carry=arvV*0.65;
-let fin=arvV*0.75;
-
-let label="⚠️ LOW";
-if(spread/arvV>0.4) label="🔥 STEAL";
-else if(spread/arvV>0.25) label="✅ SOLID";
-
-dealText=`${label}
-ARV: $${arvV.toLocaleString()}
-Total Cost: $${total.toLocaleString()}
-Spread: $${spread.toLocaleString()}
-Your Fee: $${fee.toLocaleString()}
-
---- OFFERS ---
-All Cash: $${cash.toLocaleString()}
-Seller Carry: $${carry.toLocaleString()}
-Seller Finance: $${fin.toLocaleString()}
-`;
-
-price.value=purchaseV;
-
-results.innerHTML=`<div class="card"><pre>${dealText}</pre></div>`;
-
-overage.innerHTML=`<div class="card">
-<h3>Overage</h3>
-<pre>${dealText}</pre>
-</div>`;
-}
-
-// OVERAGE CALC
-function calcOverage(){
-let arvV=+o_arv.value;
-let cash=arvV*0.5;
-let carry=arvV*0.65;
-let fin=arvV*0.75;
-
-overageCalc.innerHTML=`
+document.getElementById("results").innerHTML=`
 <div class="card">
-ARV: $${arvV.toLocaleString()}
-All Cash: $${cash.toLocaleString()}
-Seller Carry: $${carry.toLocaleString()}
-Seller Financing: $${fin.toLocaleString()}
-Overage Result: $${(arvV-carry).toLocaleString()}
+<h3>${address} <span class="flash">🔥 SOLID DEAL</span></h3>
+<p>ARV: $${arv.toLocaleString()}</p>
+<p>All Cash: $${cash.toLocaleString()}</p>
+<p>Seller Carry: $${carry.toLocaleString()}</p>
+<p>Down: $${down.toLocaleString()}</p>
+<p>Payment: $${pay}/mo</p>
+<p>Balloon: $${balloon}</p>
+<p>Seller Finance: $${finance.toLocaleString()}</p>
+<p>Payment: $${pay2}/mo</p>
+<p>Balloon: $${balloon2}</p>
+<p><strong>Overage Result:</strong> $${overage.toLocaleString()}</p>
 </div>`;
 }
 
-// CONTRACT
-function buildContract(){
-
-buyerSig.innerText=buyerSigInput.value;
-sellerSig.innerText=sellerSigInput.value;
-
-contractText=`
-PURCHASE & SALE AGREEMENT
-
-Property: ${address.value}
-Seller: ${seller.value}
-Buyer: ${buyer.value} and/or Assigns
-
-Purchase Price: $${price.value}
-Earnest Money Deposit: $500 (to be held by title company)
-
-Inspection Period: 14 days
-Closing: 30 days or sooner
-Condition: Property sold AS-IS
-
-Assignment Clause:
-Buyer may assign without seller consent.
-
-Additional Clause:
-Buyer may work with funding partners.
-
---------------------------------------
-
-SIGNATURES
-
-BUYER: ${buyer.value}
-SELLER: ${seller.value}
-`;
-
-agreement.innerHTML=`<div class="card"><pre>${contractText}</pre></div>`;
+// Repairs Calculator
+function calcRepairs(){
+let total=0;
+["roof","hvac","paint","flooring","plumbing","other"].forEach(id=>{
+total+=parseFloat(document.getElementById(id).value)||0;
+});
+document.getElementById("repairsOut").innerHTML=`<p>Total Repairs: $${total}</p>`;
 }
 
-// SEND
-function sendText(){
-window.location.href=`sms:2158085844?body=${encodeURIComponent(contractText)}`;
-}
-function sendEmail(){
-window.location.href=`mailto:richman@rootoflyfe.com?body=${encodeURIComponent(contractText)}`;
-}
-function blast(){
-let emails=prompt("Enter emails comma separated:");
-window.location.href=`mailto:${emails}?body=${encodeURIComponent(dealText)}`;
+// Signature Pad
+const canvas=document.getElementById('sigPad');
+const sigPad=new SignaturePad(canvas);
+function clearSig(){sigPad.clear();}
+
+// Contract Generator
+function generateContract(){
+let buyer=document.getElementById('name').value;
+let prop=document.getElementById('address').value;
+let arv=document.getElementById('arv').value;
+let sig=document.getElementById('buyerSign').value;
+let totalRep=parseFloat(document.getElementById("repairsOut").innerText.replace(/\D/g,''))||0;
+
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+doc.text("PURCHASE & SALE AGREEMENT",10,10);
+doc.text(`Property: ${prop}`,10,20);
+doc.text(`Seller: Nixon`,10,30);
+doc.text(`Buyer: ${buyer}`,10,40);
+doc.text(`Purchase Price: $${currentDeal.cash}`,10,50);
+doc.text(`Earnest Money Deposit: $500`,10,60);
+doc.text(`Inspection Period: 14 days`,10,70);
+doc.text(`Closing: 30 days or sooner`,10,80);
+doc.text(`Condition: Property sold AS-IS`,10,90);
+doc.text(`Assignment Clause: Buyer may assign without seller consent`,10,100);
+doc.text(`Additional Clause: Buyer may work with funding partners`,10,110);
+doc.text(`Buyer Signature: ${sig}`,10,120);
+doc.text(`Date: __________________`,10,130);
+doc.save("PSA_Deal.pdf");
 }
 
-// PDF
+// PDF Investor Package
 function generatePDF(){
-const {jsPDF}=window.jspdf;
+if(!currentDeal) return alert("No deal");
+const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
-doc.text(contractText,10,10);
-doc.save("Agreement.pdf");
+doc.text("INVESTOR PACKAGE",10,10);
+doc.text(`Property: ${currentDeal.address}`,10,20);
+doc.text(`ARV: $${currentDeal.arv}`,10,30);
+doc.text(`All Cash: $${currentDeal.cash}`,10,40);
+doc.text(`Seller Carry: $${currentDeal.carry}`,10,50);
+doc.text(`Seller Finance: $${currentDeal.finance}`,10,60);
+doc.text(`Overage: $${currentDeal.overage}`,10,70);
+doc.text("Repairs Estimator Attached",10,80);
+doc.save("Investor_Package.pdf");
 }
 
-function investorPDF(){
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
-doc.text(dealText,10,10);
-doc.save("Investor.pdf");
-}
-
-function pofPDF(){
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
-doc.text("PROOF OF FUNDS",10,10);
-doc.text(address.value,10,20);
-doc.save("POF.pdf");
-}
-
-// TAX
-function calcLien(){
-let t=lien.value*(1+(rate.value/100)*years.value);
-lienOut.innerHTML=`<div class="card">$${t.toFixed(0)}</div>`;
-}
-
+// Reset
+function resetAll(){location.reload();}
 </script>
 
 </body>
-</html>
+  </html>
