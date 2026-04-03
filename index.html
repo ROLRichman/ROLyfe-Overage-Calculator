@@ -19,6 +19,8 @@ button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 .links a {display:block;color:#38bdf8;margin:3px 0;}
 .flex-row {display:flex;gap:10px;}
 .flex-row > * {flex:1;}
+.flash {animation: flash 1s infinite;}
+@keyframes flash {0%,50%,100% {color:#f43f5e;} 25%,75% {color:#22c55e;}}
 </style>
 </head>
 
@@ -27,13 +29,13 @@ button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 
 <h1>RO’Lyfe Deal Closing Terminal</h1>
 
-<img src="your-logo.png" alt="" class="logo" style="width:150px;margin:auto;display:block;">
+<img src="your-logo.png" alt="RO’Lyfe Logo" class="logo" style="width:150px;margin:auto;display:block;">
 
 <h2>Property Analyzer</h2>
-<input id="address" placeholder="Enter Property Address">
+<input id="address" placeholder="Enter Property Address" value="5917 Old York Rd, Philadelphia, PA 19141">
 <button onclick="openZillow()">Check Zillow Value</button>
 
-<input id="arv" placeholder="Paste Zestimate / ARV">
+<input id="arv" placeholder="Paste Zestimate / ARV" value="350000">
 
 <select id="mode">
 <option value="investor">Investor Deal</option>
@@ -41,10 +43,10 @@ button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 </select>
 
 <div class="flex-row">
-<input id="name" placeholder="Your Name">
-<input id="phone" placeholder="Phone">
+<input id="name" placeholder="Your Name" value="Richman R.O.L">
+<input id="phone" placeholder="Phone" value="2674326734">
 </div>
-<input id="email" placeholder="Email">
+<input id="email" placeholder="Email" value="rootoflyfe@gmail.com">
 
 <div class="flex-row">
 <button onclick="runDeal()">Analyze Deal</button>
@@ -52,6 +54,21 @@ button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 </div>
 
 <div id="results"></div>
+
+<h2>Overage Calculator</h2>
+<div class="card" id="overage">
+<p>5917 Old York Rd, Philadelphia, PA 19141</p>
+<p>ARV: $350,000</p>
+<p>All Cash: $175,000</p>
+<p>Seller Carry: $227,500</p>
+<p>Down: $11,375</p>
+<p>Payment: $1,160/mo</p>
+<p>Balloon: $160,435</p>
+<p>Seller Financing: $262,500</p>
+<p>Payment: $1,574/mo</p>
+<p>Balloon: $168,071</p>
+<p><strong>Overage Result:</strong> $105,000</p>
+</div>
 
 <div class="flex-row">
 <button onclick="sendText()">Text Deal</button>
@@ -64,9 +81,9 @@ button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 <div id="saved"></div>
 
 <h2>Tax Lien Calculator</h2>
-<input id="lien" placeholder="Lien Amount">
-<input id="rate" placeholder="Interest %">
-<input id="years" placeholder="Years">
+<input id="lien" placeholder="Lien Amount" value="80000">
+<input id="rate" placeholder="Interest %" value="12">
+<input id="years" placeholder="Years" value="30">
 <button onclick="calcLien()">Calculate</button>
 <div id="lienOut"></div>
 
@@ -127,6 +144,7 @@ let cash=arv*0.5;
 let carry=arv*0.65;
 let finance=arv*0.75;
 
+// Down, Payments, Balloon
 let down=carry*0.05;
 let loan=carry-down;
 let pay= mortgage(loan,5,30);
@@ -135,13 +153,16 @@ let balloon=loan - (pay*48);
 let pay2=mortgage(finance,6,30);
 let balloon2=finance-(pay2*60);
 
-currentDeal={address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2};
+// Overage = 30% fee
+let overage=(arv - carry)*0.3;
+
+currentDeal={address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2,overage};
 deals.push(currentDeal);
 localStorage.setItem("deals",JSON.stringify(deals));
 
 document.getElementById("results").innerHTML=`
 <div class="card">
-<h3>${address}</h3>
+<h3>${address} <span class="flash">🔥 This deal is a steal!</span></h3>
 <p>ARV: $${arv.toLocaleString()}</p>
 <p class="good">All Cash: $${cash.toLocaleString()}</p>
 <p class="good">Seller Carry: $${carry.toLocaleString()}</p>
@@ -151,6 +172,7 @@ Balloon: $${balloon.toFixed(0)}
 <p class="good">Seller Financing: $${finance.toLocaleString()}</p>
 Payment: $${pay2.toFixed(0)}/mo<br>
 Balloon: $${balloon2.toFixed(0)}
+<p class="good">Overage Fee (30%): $${overage.toLocaleString()}</p>
 </div>`;
 renderSaved();
 }
@@ -167,16 +189,16 @@ s.innerHTML+=`<div class="card">${d.address} - ARV: $${d.arv.toLocaleString()}</
 // Text / Email / Investor
 function sendText(){
 if(!currentDeal) return alert("No deal");
-let msg=`Deal: ${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()}`;
+let msg=`Deal: ${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()} Overage $${currentDeal.overage.toLocaleString()}`;
 window.location.href=`sms:2158085844?body=${encodeURIComponent(msg)}`;
 }
 function sendEmail(){
 if(!currentDeal) return alert("No deal");
-window.location.href=`mailto:richman@rootoflyfe.com?subject=RO’Lyfe Deal&body=${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()}`;
+window.location.href=`mailto:richman@rootoflyfe.com?subject=RO’Lyfe Deal&body=${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()} Overage $${currentDeal.overage.toLocaleString()}`;
 }
 function sendInvestor(){
 if(!currentDeal) return alert("No deal");
-window.location.href=`mailto:?subject=Investor Deal&body=${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()}`;
+window.location.href=`mailto:?subject=Investor Deal&body=${currentDeal.address} ARV $${currentDeal.arv.toLocaleString()} Overage $${currentDeal.overage.toLocaleString()}`;
 }
 
 // PDF Generator
@@ -190,6 +212,7 @@ doc.text(`ARV: $${currentDeal.arv.toLocaleString()}`,10,30);
 doc.text(`All Cash: $${currentDeal.cash.toLocaleString()}`,10,40);
 doc.text(`Seller Carry: $${currentDeal.carry.toLocaleString()}`,10,50);
 doc.text(`Seller Finance: $${currentDeal.finance.toLocaleString()}`,10,60);
+doc.text(`Overage Fee (30%): $${currentDeal.overage.toLocaleString()}`,10,70);
 doc.save("ROLyfe_Deal.pdf");
 }
 
