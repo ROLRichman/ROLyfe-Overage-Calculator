@@ -2,38 +2,73 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RO’Lyfe Terminal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:15px;}
-.container {max-width:1100px;margin:auto;}
-h1,h2 {text-align:center;color:#f43f5e;}
-
-input,select,button {
-  width:100%;padding:10px;margin-top:8px;
-  border-radius:6px;border:none;
+body {
+  font-family: Roboto;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+  padding:10px;
 }
 
-button {background:#f43f5e;color:white;font-weight:bold;}
+.container {
+  max-width:1000px;
+  margin:auto;
+}
+
+h1,h2 {
+  text-align:center;
+  color:#f43f5e;
+}
+
+input, select, button {
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+}
+
+button {
+  background:#f43f5e;
+  color:#fff;
+  font-weight:bold;
+}
 
 .grid {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:12px;margin-top:20px;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-top:15px;
+}
+
+@media(min-width:600px){
+  .grid {
+    grid-template-columns:repeat(2,1fr);
+  }
 }
 
 .card {
-  background:#1e293b;padding:12px;
-  border-radius:8px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
 }
 
 .good {color:#22c55e;font-weight:bold;}
 .bad {color:#ef4444;font-weight:bold;}
 
-.section {margin-top:40px;}
-.links a {display:block;color:#38bdf8;margin:4px 0;}
+.links a {
+  display:block;
+  color:#38bdf8;
+  margin:6px 0;
+}
+
 </style>
 </head>
 
@@ -45,59 +80,161 @@ button {background:#f43f5e;color:white;font-weight:bold;}
 
 <h1>RO’Lyfe Terminal</h1>
 
-<!-- MODE SWITCH -->
+<!-- INPUT FLOW -->
+<input id="address" placeholder="Enter Property Address">
+
+<button onclick="openZillow()">Check Property on Zillow</button>
+
+<input id="zestimate" placeholder="Paste Zestimate ($)">
+
 <select id="mode">
-  <option value="investor">Investor Mode</option>
-  <option value="seller">Seller Mode</option>
+  <option value="investor">Investor Deal</option>
+  <option value="seller">Seller Deal</option>
 </select>
 
-<input id="address" placeholder="Property Address">
-<input id="value" placeholder="Estimated Value ($)">
-
-<!-- LEAD CAPTURE -->
+<!-- LEAD -->
 <input id="name" placeholder="Your Name">
-<input id="phone" placeholder="Phone Number">
+<input id="phone" placeholder="Phone">
 <input id="email" placeholder="Email">
 
-<button onclick="addDeal()">Analyze Deal</button>
+<button onclick="analyzeDeal()">Analyze Deal</button>
 
-<div id="grid" class="grid"></div>
+<div id="resultBox" class="grid"></div>
 
 <button onclick="downloadPDF()">Generate Offer PDF</button>
 
-<!-- DEAL SCORE -->
-<div id="scoreBox" style="margin-top:20px;text-align:center;"></div>
-
 <!-- TAX LIEN -->
-<div class="section">
 <h2>Tax Lien Calculator</h2>
+
 <input id="lien" placeholder="Lien Amount">
 <input id="rate" placeholder="Interest %">
 <input id="years" placeholder="Years">
+
 <button onclick="calcLien()">Calculate</button>
+
 <div id="lienResult"></div>
-</div>
 
-<!-- AFFILIATE / FUNDING -->
-<div class="section links">
-<h2>Funding & Credit Tools</h2>
+<!-- LINKS -->
+<div class="links">
 
+<h2>Funding & Credit</h2>
 <a href="https://www.7figurescredit.com/?a_aid=ROLFunding" target="_blank">7Figures Credit</a>
 <a href="https://go.mypartner.io/referral-partner/?ref=001Qk00000MkqgTIAR" target="_blank">Corporate Credit Partner</a>
 <a href="https://my.americasfundingexperts.com/?id=1820217000190862001" target="_blank">Americas Funding Experts</a>
-<a href="https://getyourbizloan.io/lp1?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP1</a>
-<a href="https://getyourbizloan.io/lp2?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP2</a>
+<a href="https://getyourbizloan.io/lp1?pu=recqKxJNkvD70xMqi" target="_blank">Loan LP1</a>
+<a href="https://getyourbizloan.io/lp2?pu=recqKxJNkvD70xMqi" target="_blank">Loan LP2</a>
 
-</div>
-
-<!-- JOTFORMS -->
-<div class="section links">
-<h2>Applications & Intake</h2>
-
+<h2>Applications</h2>
 <a href="https://form.jotform.com/253154859148062" target="_blank">Document Upload</a>
 <a href="https://form.jotform.com/252063354378055" target="_blank">Holding Intake</a>
 <a href="https://form.jotform.com/252443109820047" target="_blank">Funding Intake</a>
-<a href="https://form.jotform.com/2530967310210469" target="_blank">Funding Application</a>
+<a href="https://form.jotform.com/2530967310210469" target="_blank">Funding App</a>
+<a href="https://www.jotform.com/agent/019a5b67fad97a4db24b28e44f970158c0f1" target="_blank">AI Agent</a>
+
+<h2>Tools</h2>
+<a href="https://sendfuse.com/login" target="_blank">Sendfuse Dashboard</a>
+
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+
+let deals=[];
+
+function openZillow(){
+  let address=document.getElementById('address').value;
+  if(!address) return alert("Enter address");
+  window.open("https://www.zillow.com/homes/"+encodeURIComponent(address),"_blank");
+}
+
+function analyzeDeal(){
+
+let address=document.getElementById('address').value;
+let value=parseFloat(document.getElementById('zestimate').value);
+
+let name=document.getElementById('name').value;
+let phone=document.getElementById('phone').value;
+let email=document.getElementById('email').value;
+
+let mode=document.getElementById('mode').value;
+
+if(!value) return alert("Paste Zestimate");
+
+let offer = mode==="investor"? value*0.5 : value*0.75;
+let overage = value-offer;
+let fee = overage*0.3;
+
+let score=Math.round((overage/value)*100);
+
+let alertMsg = score>40 ? "🔥 DEAL ALERT" :
+               score>25 ? "✅ Solid Deal" :
+               "⚠️ Low Deal";
+
+localStorage.setItem("lead",JSON.stringify({name,phone,email,address}));
+
+let card=document.createElement('div');
+card.className='card';
+
+card.innerHTML=`
+<h3>${address}</h3>
+
+Value: $${value.toLocaleString()}<br>
+Offer: $${offer.toLocaleString()}<br>
+
+<div class="good">Overage: $${overage.toLocaleString()}</div>
+<div class="bad">Your Fee: $${fee.toLocaleString()}</div>
+
+<h2>${alertMsg}</h2>
+Score: ${score}%
+`;
+
+document.getElementById('resultBox').appendChild(card);
+
+deals.push({address,value,offer,overage,fee});
+
+}
+
+function calcLien(){
+
+let lien=parseFloat(document.getElementById('lien').value);
+let rate=parseFloat(document.getElementById('rate').value)/100;
+let years=parseFloat(document.getElementById('years').value);
+
+let total=lien*(1+rate*years);
+let profit=total-lien;
+
+document.getElementById('lienResult').innerHTML=`
+<div class="card">
+Total: $${total.toFixed(2)}<br>
+Profit: $${profit.toFixed(2)}
+</div>`;
+}
+
+function downloadPDF(){
+
+const { jsPDF } = window.jspdf;
+const pdf = new jsPDF();
+
+let y=20;
+
+deals.forEach(d=>{
+pdf.text(d.address,10,y); y+=10;
+pdf.text("Value: "+d.value,10,y); y+=10;
+pdf.text("Offer: "+d.offer,10,y); y+=10;
+pdf.text("Overage: "+d.overage,10,y); y+=15;
+});
+
+pdf.save("ROLyfe_Offer.pdf");
+
+}
+
+</script>
+
+</body>
+</html><a href="https://form.jotform.com/2530967310210469" target="_blank">Funding Application</a>
 <a href="https://www.jotform.com/agent/019a5b67fad97a4db24b28e44f970158c0f1" target="_blank">AI Agent</a>
 
 </div>
