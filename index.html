@@ -8,24 +8,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body{font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:12px;}
-.container{max-width:720px;margin:auto;}
+body{font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:10px;}
+.container{max-width:760px;margin:auto;}
+
 h1,h2{text-align:center;color:#f43f5e;}
 
+.card{background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+
 input,select,textarea,button{
-width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px;
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+font-size:15px;
+box-sizing:border-box;
 }
 
 button{background:#f43f5e;color:#fff;font-weight:bold;}
 
-.card{background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.full{grid-column:1/-1;}
 
 .good{color:#22c55e;}
 .warn{color:#facc15;}
 .bad{color:#ef4444;}
-
-.flex{display:flex;gap:10px;}
-.flex>*{flex:1;}
 
 .flash{animation:flash 1s infinite;}
 @keyframes flash{
@@ -33,7 +40,7 @@ button{background:#f43f5e;color:#fff;font-weight:bold;}
 25%,75%{color:#22c55e;}
 }
 
-.links a{display:block;color:#38bdf8;margin:5px 0;}
+.links a{display:block;color:#38bdf8;margin:4px 0;}
 </style>
 </head>
 
@@ -47,82 +54,68 @@ button{background:#f43f5e;color:#fff;font-weight:bold;}
 <div class="card">
 <h2>Deal Intake</h2>
 
-<select id="role">
-<option>Who are you?</option>
-<option>Investor</option>
-<option>Wholesaler</option>
-<option>Contractor</option>
-<option>Realtor</option>
-<option>Buyer</option>
-<option>Seller</option>
-</select>
+<div class="grid">
+<select id="role"><option>Role</option><option>Investor</option><option>Wholesaler</option><option>Contractor</option></select>
+<select id="contract"><option>Under Contract?</option><option>Yes</option><option>No</option></select>
 
-<select id="contract">
-<option>Do you have a deal under contract?</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-
-<select id="dealType">
-<option>Deal Type</option>
-<option>Fix & Flip</option>
-<option>Wholesale</option>
-<option>Buy & Hold</option>
-<option>Refinance</option>
-</select>
+<select id="dealType"><option>Deal Type</option><option>Wholesale</option><option>Fix & Flip</option><option>Refinance</option></select>
 
 <input id="purchase" placeholder="Purchase Price">
-<input id="rehab" placeholder="Estimated Rehab">
-<input id="arv" placeholder="ARV (Zestimate)">
-<input id="address" value="5503 West Blvd, Youngstown, OH 44512">
+<input id="rehab" placeholder="Rehab Budget">
+<input id="arv" value="356000" placeholder="ARV">
 
-<button onclick="openZillow()">Check Zillow</button>
+<input class="full" id="address" value="5503 West Blvd, Youngstown, OH 44512">
 
+<button class="full" onclick="openZillow()">Check Zillow</button>
+</div>
 </div>
 
 <!-- INSPECTION -->
 <div class="card">
 <h2>Inspection / Rehab Estimator</h2>
 
-<input id="roof" placeholder="Roof Repair ($)">
-<input id="kitchen" placeholder="Kitchen ($)">
-<input id="bath" placeholder="Bathrooms ($)">
-<input id="flooring" placeholder="Flooring ($)">
-<input id="paint" placeholder="Paint ($)">
-<input id="other" placeholder="Other Repairs ($)">
+<div class="grid">
+<input id="roof" placeholder="Roof">
+<input id="hvac" placeholder="HVAC">
+<input id="kitchen" placeholder="Kitchen">
+<input id="bath" placeholder="Bathrooms">
+<input id="floor" placeholder="Flooring">
+<input id="paint" placeholder="Paint">
+</div>
 
 <button onclick="calcRehab()">Calculate Rehab</button>
 <div id="rehabOut"></div>
-
 </div>
 
 <!-- DEAL -->
 <button onclick="runDeal()">Analyze Deal</button>
-<button onclick="resetAll()">Reset</button>
 
 <div id="results"></div>
-
-<!-- OVERAGE -->
 <div id="overageBox"></div>
 
 <!-- AGREEMENT -->
 <div class="card">
-<h2>Offer Agreement Generator</h2>
+<h2>LOI / Agreement</h2>
 
-<input id="buyerName" placeholder="Buyer Name">
-<input id="sellerName" placeholder="Seller Name">
+<input id="buyer" placeholder="Buyer Name">
+<input id="seller" placeholder="Seller Name">
+
+<canvas id="sig" style="background:#fff;width:100%;height:150px;"></canvas>
+<button onclick="clearSig()">Clear Signature</button>
 
 <button onclick="generateAgreement()">Generate LOI</button>
 <div id="agreement"></div>
 </div>
 
 <!-- ACTION -->
-<div class="flex">
-<button onclick="sendToLO()">Send to Loan Officer</button>
-<button onclick="blastInvestors()">Blast Investors</button>
+<div class="grid">
+<button onclick="sendText()">Text Deal</button>
+<button onclick="sendEmail()">Email Deal</button>
+<button onclick="blast()">Blast Investors</button>
+<button onclick="sendLO()">Send to LO</button>
 </div>
 
-<button onclick="generatePDF()">Download Deal PDF</button>
+<button onclick="generatePDF()">Download FULL Deal PDF</button>
 
 <!-- TAX -->
 <div class="card">
@@ -135,158 +128,168 @@ button{background:#f43f5e;color:#fff;font-weight:bold;}
 </div>
 
 <!-- LINKS -->
+<div class="card">
+<h2>Funding / Credit / Tools</h2>
+
 <div class="links">
-<h2>Funding</h2>
 <a href="https://form.jotform.com/252063354378055">Funding App</a>
 <a href="https://form.jotform.com/253154859148062">Upload Docs</a>
 <a href="https://app.sendfuse.com/dashboard">Sendfuse</a>
-<a href="#">POF (Coming Soon)</a>
+<a href="https://rootoflyfe.blnsoftware.com/">Main Intake</a>
+
+<br><b>Credit Tools</b>
+<a href="https://www.creditscoreiq.com/lander/bus?offercode=435404PA">ScoreIQ</a>
+<a href="https://www.identityiq.com/sc-securepreferred.aspx?offercode=431297MR">IdentityIQ</a>
+
+<br><b>Starter Cards</b>
+<a href="https://www.openskycc.com/">OpenSky</a>
+<a href="https://www.capitalone.com/credit-cards/quicksilver-secured/">Capital One</a>
+
+<br><b>Rural Tools</b>
+<a href="https://www.consumerfinance.gov/rural-or-underserved-tool/#rural-or-underserved">CFPB</a>
+<a href="https://eligibility.sc.egov.usda.gov/">USDA</a>
+
+</div>
+</div>
+
+<!-- DROPBOX -->
+<div class="card">
+<h2>Upload Deal Files</h2>
+<iframe src="https://form.jotform.com/253154859148062"
+style="width:100%;height:400px;border:none;"></iframe>
 </div>
 
 </div>
+
+<!-- AI AGENT -->
+<div id="agent" style="position:fixed;bottom:20px;right:20px;width:320px;background:#111;padding:10px;border-radius:10px;display:none;">
+<iframe src="https://www.jotform.com/agent/019a5b67fad97a4db24b28e44f970158c0f1"
+style="width:100%;height:400px;border:none;"></iframe>
+<button onclick="agent.style.display='none'">X</button>
+</div>
+
+<button onclick="agent.style.display='block'" style="position:fixed;bottom:20px;right:20px;">AI</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 
-let deal=null;
+// SIGNATURE
+let canvas=document.getElementById("sig");
+let ctx=canvas.getContext("2d");
+let drawing=false;
 
-// Zillow
-function openZillow(){
-let a=address.value;
-window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
+canvas.addEventListener("mousedown",()=>drawing=true);
+canvas.addEventListener("mouseup",()=>drawing=false);
+canvas.addEventListener("mousemove",draw);
+
+function draw(e){
+if(!drawing) return;
+ctx.lineWidth=2;
+ctx.lineTo(e.offsetX,e.offsetY);
+ctx.stroke();
 }
 
-// Rehab calc
-function calcRehab(){
-let total = ["roof","kitchen","bath","flooring","paint","other"]
-.reduce((sum,id)=>sum+(parseFloat(document.getElementById(id).value)||0),0);
+function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);}
 
+// ZILLOW
+function openZillow(){
+window.open("https://www.zillow.com/homes/"+encodeURIComponent(address.value));
+}
+
+// REHAB
+function calcRehab(){
+let total=["roof","hvac","kitchen","bath","floor","paint"]
+.reduce((t,id)=>t+(+document.getElementById(id).value||0),0);
+
+rehab.value=total;
 rehabOut.innerHTML=`<div class="card">Total Rehab: $${total.toLocaleString()}</div>`;
 }
 
-// Mortgage
-function mortgage(P,r,n){
+// MORTGAGE
+function m(P,r,n){
 r=r/100/12;n=n*12;
 return P*(r*(1+r)**n)/((1+r)**n-1);
 }
 
-// DEAL ENGINE
+// DEAL
 function runDeal(){
 
-let arv=parseFloat(document.getElementById("arv").value);
-let purchase=parseFloat(document.getElementById("purchase").value)||0;
-let rehab=parseFloat(document.getElementById("rehab").value)||0;
+let arvV=+arv.value;
+let purchaseV=+purchase.value||0;
+let rehabV=+rehab.value||0;
 
-let totalCost = purchase + rehab;
+let total=purchaseV+rehabV;
+let spread=arvV-total;
+let fee=spread*0.3;
 
-let cash=arv*0.5;
-let carry=arv*0.65;
-let finance=arv*0.75;
+let cash=arvV*0.5;
+let carry=arvV*0.65;
+let fin=arvV*0.75;
 
-let spread = arv - totalCost;
-let fee = spread * 0.3;
+let pay=m(carry,5,30);
+let pay2=m(fin,6,30);
 
-// scoring logic
-let score, label, color;
+let label="⚠️ LOW";
+if(spread/arvV>0.4) label="🔥 STEAL";
+else if(spread/arvV>0.25) label="✅ SOLID";
 
-if(spread/arv > 0.4){label="🔥 STEAL";color="good";}
-else if(spread/arv > 0.25){label="✅ SOLID";color="warn";}
-else{label="⚠️ RISKY";color="bad";}
+let text=`${label}
+ARV: $${arvV.toLocaleString()}
+Total Cost: $${total.toLocaleString()}
+Spread: $${spread.toLocaleString()}
+All Cash: $${cash.toLocaleString()}
+Seller Carry: $${carry.toLocaleString()}
+Payment: $${pay.toFixed(0)}/mo
+Seller Finance: $${fin.toLocaleString()}
+Payment: $${pay2.toFixed(0)}/mo
+Your Fee: $${fee.toLocaleString()}`;
 
-// payments
-let pay= mortgage(carry,5,30);
-let pay2= mortgage(finance,6,30);
+results.innerHTML=`<div class="card"><pre>${text}</pre></div>`;
 
-deal={arv,purchase,rehab,spread,fee,address:address.value};
+overageBox.innerHTML=`<div class="card">Overage Result: $${spread.toLocaleString()}<br>Your 30% Fee: $${fee.toLocaleString()}</div>`;
 
-results.innerHTML=`
-<div class="card">
-<h3 class="${color}">${label}</h3>
-
-ARV: $${arv.toLocaleString()}<br>
-Total Cost: $${totalCost.toLocaleString()}<br>
-Spread: $${spread.toLocaleString()}<br>
-
-All Cash: $${cash.toLocaleString()}<br>
-Seller Carry: $${carry.toLocaleString()}<br>
-Payment: $${pay.toFixed(0)}/mo<br>
-
-Seller Finance: $${finance.toLocaleString()}<br>
-Payment: $${pay2.toFixed(0)}/mo<br>
-
-Your Fee: $${fee.toLocaleString()}
-</div>
-`;
-
-overageBox.innerHTML=`
-<div class="card">
-Overage Result: $${spread.toLocaleString()}<br>
-Your 30% Fee: $${fee.toLocaleString()}
-</div>
-`;
-
+window.dealText=text;
 }
 
 // AGREEMENT
 function generateAgreement(){
-let buyer=buyerName.value;
-let seller=sellerName.value;
-
 agreement.innerHTML=`
 <div class="card">
-LOI AGREEMENT<br><br>
+LOI AGREEMENT
 
-Buyer: ${buyer}<br>
-Seller: ${seller}<br>
-Property: ${address.value}<br>
-Offer Based On ARV: $${arv.value}<br>
+Buyer: ${buyer.value}
+Seller: ${seller.value}
+Property: ${address.value}
 
 Terms:
-- Subject to inspection
-- Assignment allowed
-- Closing within 30 days
+Subject to inspection
+Assignment allowed
+Close in 30 days
 
-Sign Below:
-
-___________________
-Seller Signature
-
-___________________
-Buyer Signature
-</div>
-`;
+Signature captured above.
+</div>`;
 }
 
 // SEND
-function sendToLO(){
-window.location.href="mailto:richman@rootoflyfe.com?subject=Deal Submission&body="+address.value;
-}
-
-function blastInvestors(){
-window.location.href="mailto:?subject=Investor Deal&body="+address.value;
-}
+function sendText(){window.location.href=`sms:2158085844?body=${encodeURIComponent(dealText)}`;}
+function sendEmail(){window.location.href=`mailto:richman@rootoflyfe.com?body=${encodeURIComponent(dealText)}`;}
+function blast(){window.location.href=`mailto:?body=${encodeURIComponent(dealText)}`;}
+function sendLO(){window.location.href=`mailto:richman@rootoflyfe.com?subject=LO Deal&body=${encodeURIComponent(dealText)}`;}
 
 // PDF
 function generatePDF(){
 const {jsPDF}=window.jspdf;
 let doc=new jsPDF();
-
-doc.text("RO’Lyfe Deal",10,10);
-doc.text(address.value,10,20);
-
-doc.save("deal.pdf");
+doc.text(dealText,10,10);
+doc.save("ROLyfe_FULL_DEAL.pdf");
 }
 
 // TAX
 function calcLien(){
-let l=lien.value,r=rate.value/100,y=years.value;
-let t=l*(1+r*y);
+let t=lien.value*(1+(rate.value/100)*years.value);
 lienOut.innerHTML=`<div class="card">$${t.toFixed(0)}</div>`;
 }
-
-// RESET
-function resetAll(){location.reload();}
 
 </script>
 
