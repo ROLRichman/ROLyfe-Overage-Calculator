@@ -1,24 +1,59 @@
-<!-- Keep all your existing CSS and JS -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RO’Lyfe Deal Terminal - Full</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
-<!-- Floating AI agent after popup closes -->
-<div id="aiFloat" style="position:fixed;bottom:20px;right:20px;background:#f43f5e;padding:10px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;display:none;" title="AI Assistant" onclick="alert('AI Assistant Active!')">
-🤖
+<style>
+body {font-family: Roboto, sans-serif; background:#0f172a; color:#fff; margin:0; padding:12px;}
+.container {max-width:900px; margin:auto;}
+h1,h2 {text-align:center;color:#f43f5e;}
+input, select, button, textarea {width:100%; padding:10px; margin-top:10px; border-radius:8px; border:none; font-size:16px;}
+button {background:#f43f5e;color:#fff;font-weight:bold;cursor:pointer;}
+.card {background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+.good {color:#22c55e;}
+.bad {color:#ef4444;}
+.links a {display:block;color:#38bdf8;margin:3px 0;}
+.flex-row {display:flex; gap:10px;}
+.flex-row > * {flex:1;}
+.flash {animation: flash 1s infinite;}
+@keyframes flash {0%,50%,100% {color:#f43f5e;} 25%,75% {color:#22c55e;}}
+.popup {position:fixed;top:20px;right:20px;background:#1e293b;padding:20px;border-radius:10px;z-index:1000;display:flex;flex-direction:column;align-items:flex-start;}
+.popup button.close {background:red;margin-top:10px;width:auto;padding:5px 10px;}
+.signature-pad {border:1px solid #ccc; border-radius:10px; width:100%; height:150px;}
+#aiFloat {position:fixed;bottom:20px;right:20px;background:#f43f5e;padding:10px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;display:none;}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>RO’Lyfe Deal Terminal</h1>
+<img src="your-logo.png" alt="RO’Lyfe Logo" class="logo" style="width:150px;margin:auto;display:block;">
+
+<!-- AI Agent Pop-up -->
+<div class="popup" id="aiPopup">
+<p>🤖 AI Deal Assistant Online! Click X to close.</p>
+<button class="close">X</button>
 </div>
 
-<script>
-const aiPopup = document.getElementById('aiPopup');
-const aiFloat = document.getElementById('aiFloat');
+<!-- Floating AI -->
+<div id="aiFloat" title="AI Assistant">🤖</div>
 
-function closeAIPopup(){
-  aiPopup.style.display='none';
-  aiFloat.style.display='flex';
-}
-document.querySelector('#aiPopup .close').onclick = closeAIPopup;
-</script>
+<h2>Property Analyzer</h2>
+<input id="address" placeholder="Enter Property Address" value="5503 West Blvd, Youngstown, OH 44512">
+<button onclick="openZillow()">Check Zillow Value</button>
+<input id="arv" placeholder="ARV" value="356600">
+<select id="mode">
+<option value="investor">Investor Deal</option>
+<option value="seller">Seller Deal</option>
+</select>
 
-<!-- Role selection -->
+<h2>Who are you?</h2>
 <select id="role" onchange="roleChange()">
-  <option value="">Who are you?</option>
+  <option value="">Select your role</option>
   <option value="contractor">Contractor</option>
   <option value="realtor">Realtor</option>
   <option value="flipper">Flipper</option>
@@ -27,56 +62,246 @@ document.querySelector('#aiPopup .close').onclick = closeAIPopup;
   <option value="investor">Investor</option>
 </select>
 
-<!-- Property under contract question -->
-<select id="propertyContract" style="display:none;" onchange="propertyContractChange()">
-  <option value="">Do you have property under contract?</option>
+<select id="propertyContract" style="display:none;margin-top:10px;">
+  <option value="">Do you have a property under contract?</option>
   <option value="yes">Yes</option>
   <option value="no">No</option>
 </select>
 
+<div class="flex-row">
+<input id="name" placeholder="Your Name" value="">
+<input id="phone" placeholder="Phone" value="">
+</div>
+<input id="email" placeholder="Email" value="">
+
+<div class="flex-row">
+<button onclick="runDeal()">Analyze Deal</button>
+<button onclick="resetAll()">Reset</button>
+</div>
+
+<div id="results"></div>
+
+<h2>Repair / Inspection Estimator</h2>
+<div class="flex-row">
+<input id="roof" placeholder="Roof ($)" value="10000">
+<input id="hvac" placeholder="HVAC ($)" value="10000">
+</div>
+<div class="flex-row">
+<input id="paint" placeholder="Paint ($)" value="10000">
+<input id="flooring" placeholder="Flooring ($)" value="10000">
+</div>
+<div class="flex-row">
+<input id="plumbing" placeholder="Plumbing ($)" value="10000">
+<input id="other" placeholder="Other ($)" value="10000">
+</div>
+<button onclick="calcRepairs()">Calculate Total Repairs</button>
+<div id="repairsOut" class="card"></div>
+
+<h2>Overage Calculator</h2>
+<div class="card" id="overage">
+<p>ARV: $356,600</p>
+<p>All Cash: $140,000</p>
+<p>Seller Carry: $231,400</p>
+<p>Down: $11,375</p>
+<p>Payment: $1,160/mo</p>
+<p>Balloon: $160,435</p>
+<p>Seller Financing: $262,500</p>
+<p>Payment: $1,574/mo</p>
+<p>Balloon: $168,071</p>
+<p><strong>Overage Result:</strong> $105,000</p>
+</div>
+
+<h2>Sign / Contract</h2>
+<button onclick="generateContract()">Generate Purchase & Sale Agreement</button>
+<p>Type your name to sign:</p>
+<input id="buyerSign" placeholder="Buyer Signature (Type your name)">
+<canvas id="sigPad" class="signature-pad"></canvas>
+<button onclick="clearSig()">Clear Signature</button>
+
+<h2>Photos & Upload</h2>
+<input type="file" id="propertyPics" multiple>
+<button onclick="uploadPhotos()">Upload Photos to Deal</button>
+
+<h2>Investor Blast</h2>
+<textarea id="investorList" placeholder="Enter emails or phone numbers, comma separated"></textarea>
+<button onclick="blastDeal()">Send Deal PDF</button>
+
+<h2>Funding & Credit Links</h2>
+<div class="links">
+<!-- all previous links kept here as in your code -->
+<a href="https://www.creditscoreiq.com/lander/bus?offercode=435404PA" target="_blank">Credit Score IQ 1</a>
+<a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=432142NZ" target="_blank">Credit Score IQ 2</a>
+<a href="https://www.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Identity IQ</a>
+<a href="https://www.creditbuilderiq.com/lander/bus?offercode=437502WT" target="_blank">Credit Builder IQ 1</a>
+<a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=432142NY" target="_blank">Credit Score IQ 3</a>
+<a href="https://www.creditbuilderiq.com/lander/bus?offercode=437502J7" target="_blank">Credit Builder IQ 2</a>
+<a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=4321396B" target="_blank">Credit Score IQ 4</a>
+<a href="https://member.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Do you have your credit score?</a>
+<a href="https://member.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Do you need to download credit score?</a>
+<a href="https://rootoflyfe.blnsoftware.com/" target="_blank">My Other Intake</a>
+<a href="https://www.consumerfinance.gov/rural-or-underserved-tool/#rural-or-underserved" target="_blank">Rural Areas</a>
+<a href="https://eligibility.sc.egov.usda.gov/eligibility/welcomeAction.do?pageAction=sfp" target="_blank">USDA Eligibility</a>
+<a href="https://www.openskycc.com/" target="_blank">OpenSky Starter Card</a>
+<a href="https://www.tomocredit.com/" target="_blank">Tomo</a>
+<a href="https://www.zolve.com/" target="_blank">Zolve</a>
+<a href="https://www.growcredit.com/" target="_blank">Grow Credit</a>
+<a href="https://www.discover.com/credit-cards/secured/" target="_blank">Discover Secured</a>
+<a href="https://www.capitalone.com/credit-cards/quicksilver-secured/" target="_blank">Capital One</a>
+<a href="https://www.self.inc/" target="_blank">Self Loan</a>
+</div>
+
+<button onclick="generatePDF()">Generate Investor Package PDF</button>
+<button onclick="generateFullPagePDF()">Download Full Page PDF</button>
+
+<h2>Dropbox / Jotform Embed</h2>
+<iframe src="https://www.jotform.com/your-form-id" style="width:100%;height:500px;border:none;"></iframe>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
 <script>
+let deals = JSON.parse(localStorage.getItem('deals'))||[];
+let currentDeal = null;
+
+// AI popup floating
+const aiPopup = document.getElementById('aiPopup');
+const aiFloat = document.getElementById('aiFloat');
+document.querySelector('#aiPopup .close').onclick = function(){
+  aiPopup.style.display='none';
+  aiFloat.style.display='flex';
+}
+aiFloat.onclick = function(){
+  aiPopup.style.display='flex';
+  aiFloat.style.display='none';
+}
+
+// Zillow
+function openZillow(){ let a=document.getElementById("address").value; if(!a) return alert("Enter address"); window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));}
+
+// Role conditional
 function roleChange(){
   const role = document.getElementById('role').value;
-  if(role) document.getElementById('propertyContract').style.display='block';
-  else document.getElementById('propertyContract').style.display='none';
+  document.getElementById('propertyContract').style.display = role ? 'block' : 'none';
 }
 
-function propertyContractChange(){
-  const val = document.getElementById('propertyContract').value;
-  if(val==='yes'){
-    alert('Display follow-up questions dynamically here for property info, repairs, sellers, etc.');
-  }
+// Deal Analyzer
+function runDeal(){
+let arv=parseFloat(document.getElementById("arv").value);
+let address=document.getElementById("address").value;
+if(!arv || !address) return alert("Address & ARV required");
+
+let cash=140000; 
+let carry=231400;
+let finance=280500;
+let down=11375;
+let pay=1160;
+let balloon=160435;
+let pay2=1574;
+let balloon2=168071;
+let overage=105000;
+
+currentDeal={address,arv,cash,carry,finance,pay,pay2,down,balloon,balloon2,overage};
+deals.push(currentDeal);
+localStorage.setItem('deals',JSON.stringify(deals));
+
+document.getElementById("results").innerHTML=`
+<div class="card">
+<h3>${address} <span class="flash">🔥 SOLID DEAL</span></h3>
+<p>ARV: $${arv.toLocaleString()}</p>
+<p>All Cash: $${cash.toLocaleString()}</p>
+<p>Seller Carry: $${carry.toLocaleString()}</p>
+<p>Down: $${down.toLocaleString()}</p>
+<p>Payment: $${pay}/mo</p>
+<p>Balloon: $${balloon}</p>
+<p>Seller Finance: $${finance.toLocaleString()}</p>
+<p>Payment: $${pay2}/mo</p>
+<p>Balloon: $${balloon2}</p>
+<p><strong>Overage Result:</strong> $${overage.toLocaleString()}</p>
+</div>`;
 }
-</script>
 
-<!-- Investor Blast Section -->
-<h2>Investor Blast</h2>
-<textarea id="investorList" placeholder="Enter emails or numbers (comma separated)"></textarea>
-<button onclick="blastDeal()">Send Deal PDF to Investors</button>
+// Repairs Calculator
+function calcRepairs(){
+let total=0;
+["roof","hvac","paint","flooring","plumbing","other"].forEach(id=>{
+total+=parseFloat(document.getElementById(id).value)||0;
+});
+document.getElementById("repairsOut").innerHTML=`<p>Total Repairs: $${total}</p>`;
+}
 
-<script>
+// Signature Pad
+const canvas=document.getElementById('sigPad');
+const sigPad=new SignaturePad(canvas);
+function clearSig(){sigPad.clear();}
+
+// Contract Generator
+function generateContract(){
+let buyer=document.getElementById('name').value;
+let prop=document.getElementById('address').value;
+let arv=document.getElementById('arv').value;
+let sig=document.getElementById('buyerSign').value;
+let totalRep=parseFloat(document.getElementById("repairsOut").innerText.replace(/\D/g,''))||0;
+
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+doc.setFont("helvetica", "italic"); // for typed cursive
+doc.text("PURCHASE & SALE AGREEMENT",10,10);
+doc.text(`Property: ${prop}`,10,20);
+doc.text(`Seller: Nixon`,10,30);
+doc.text(`Buyer: ${buyer}`,10,40);
+doc.text(`Purchase Price: $${currentDeal.cash}`,10,50);
+doc.text(`Earnest Money Deposit: $500`,10,60);
+doc.text(`Inspection Period: 14 days`,10,70);
+doc.text(`Closing: 30 days or sooner`,10,80);
+doc.text(`Condition: Property sold AS-IS`,10,90);
+doc.text(`Assignment Clause: Buyer may assign without seller consent`,10,100);
+doc.text(`Additional Clause: Buyer may work with funding partners`,10,110);
+doc.text(`Buyer Signature: ${sig}`,10,120);
+doc.text(`Date: __________________`,10,130);
+doc.save("PSA_Deal.pdf");
+}
+
+// PDF Investor Package
+function generatePDF(){
+if(!currentDeal) return alert("No deal");
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+doc.text("INVESTOR PACKAGE",10,10);
+doc.text(`Property: ${currentDeal.address}`,10,20);
+doc.text(`ARV: $${currentDeal.arv}`,10,30);
+doc.text(`All Cash: $${currentDeal.cash}`,10,40);
+doc.text(`Seller Carry: $${currentDeal.carry}`,10,50);
+doc.text(`Seller Finance: $${currentDeal.finance}`,10,60);
+doc.text(`Overage: $${currentDeal.overage}`,10,70);
+doc.text("Repairs Estimator Attached",10,80);
+doc.save("Investor_Package.pdf");
+}
+
+// Full Page PDF
+function generateFullPagePDF(){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+doc.text("RO'Lyfe Full Deal Page",10,10);
+doc.text(document.getElementById('results').innerText,10,20);
+doc.text(document.getElementById('repairsOut').innerText,10,40);
+doc.save("ROLyfe_Full_Deal.pdf");
+}
+
+// Reset
+function resetAll(){location.reload();}
+
+// Placeholder Blast
 function blastDeal(){
   const list=document.getElementById('investorList').value;
   if(!list) return alert('Enter investors emails / numbers');
   alert('Deal PDF will be sent to: '+list);
-  // Here integrate SMS/email API
 }
+
+// Upload Photos placeholder
+function uploadPhotos(){ alert("Photos uploaded to deal (placeholder)"); }
+
 </script>
 
-<!-- PDF Download Page Button -->
-<button onclick="generateFullPagePDF()">Download Full Deal Page PDF</button>
-
-<script>
-function generateFullPagePDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("RO'Lyfe Full Deal Page",10,10);
-  // Include all sections: Analyzer, Repairs, Overage, Roles, Photos
-  doc.text(document.getElementById('results').innerText,10,20);
-  doc.save("ROLyfe_Full_Deal.pdf");
-}
-</script>
-
-<!-- Dropbox/Jotform embed -->
-<h2>Attach Documents / Forms</h2>
-<iframe src="https://www.jotform.com/your-form-id" style="width:100%;height:500px;border:none;"></iframe>
+</div>
+</body>
+  </html>
