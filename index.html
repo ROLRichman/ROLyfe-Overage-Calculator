@@ -25,270 +25,250 @@ font-size:15px;
 box-sizing:border-box;
 }
 
-button{background:#f43f5e;color:#fff;font-weight:bold;}
-
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .full{grid-column:1/-1;}
+
+button{background:#f43f5e;color:#fff;font-weight:bold;}
 
 .good{color:#22c55e;}
 .warn{color:#facc15;}
 .bad{color:#ef4444;}
 
-.flash{animation:flash 1s infinite;}
-@keyframes flash{
-0%,50%,100%{color:#f43f5e;}
-25%,75%{color:#22c55e;}
-}
-
-.links a{display:block;color:#38bdf8;margin:4px 0;}
+canvas{width:100%;height:140px;background:#fff;border-radius:8px;}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
 <h1>RO’Lyfe Deal Closing Terminal</h1>
 
-<!-- INTAKE -->
+<!-- DEAL INPUT -->
 <div class="card">
-<h2>Deal Intake</h2>
+<h2>Deal Analyzer</h2>
 
 <div class="grid">
-<select id="role"><option>Role</option><option>Investor</option><option>Wholesaler</option><option>Contractor</option></select>
-<select id="contract"><option>Under Contract?</option><option>Yes</option><option>No</option></select>
-
-<select id="dealType"><option>Deal Type</option><option>Wholesale</option><option>Fix & Flip</option><option>Refinance</option></select>
-
 <input id="purchase" placeholder="Purchase Price">
-<input id="rehab" placeholder="Rehab Budget">
-<input id="arv" value="356000" placeholder="ARV">
-
-<input class="full" id="address" value="5503 West Blvd, Youngstown, OH 44512">
-
-<button class="full" onclick="openZillow()">Check Zillow</button>
-</div>
+<input id="rehab" placeholder="Rehab">
+<input id="arv" placeholder="ARV (Zestimate)">
+<input id="address" value="2109 W Nedro Ave, Philadelphia, PA 19138">
 </div>
 
-<!-- INSPECTION -->
-<div class="card">
-<h2>Inspection / Rehab Estimator</h2>
-
-<div class="grid">
-<input id="roof" placeholder="Roof">
-<input id="hvac" placeholder="HVAC">
-<input id="kitchen" placeholder="Kitchen">
-<input id="bath" placeholder="Bathrooms">
-<input id="floor" placeholder="Flooring">
-<input id="paint" placeholder="Paint">
-</div>
-
-<button onclick="calcRehab()">Calculate Rehab</button>
-<div id="rehabOut"></div>
-</div>
-
-<!-- DEAL -->
+<button onclick="openZillow()">Check Zillow</button>
 <button onclick="runDeal()">Analyze Deal</button>
 
 <div id="results"></div>
-<div id="overageBox"></div>
+</div>
 
 <!-- AGREEMENT -->
 <div class="card">
-<h2>LOI / Agreement</h2>
+<h2>Purchase & Sale Agreement</h2>
 
-<input id="buyer" placeholder="Buyer Name">
+<input id="buyer" value="Richardson L." placeholder="Buyer">
 <input id="seller" placeholder="Seller Name">
+<input id="price" placeholder="Auto Filled">
 
-<canvas id="sig" style="background:#fff;width:100%;height:150px;"></canvas>
-<button onclick="clearSig()">Clear Signature</button>
+<br><br>
 
-<button onclick="generateAgreement()">Generate LOI</button>
+<h3>Buyer Signature</h3>
+<canvas id="sigBuyer"></canvas>
+
+<h3 style="margin-top:20px;">Seller Signature</h3>
+<canvas id="sigSeller"></canvas>
+
+<button onclick="clearSig()">Clear Signatures</button>
+<button onclick="buildContract()">Generate Agreement</button>
+
 <div id="agreement"></div>
 </div>
 
-<!-- ACTION -->
+<!-- ACTIONS -->
 <div class="grid">
-<button onclick="sendText()">Text Deal</button>
 <button onclick="sendEmail()">Email Deal</button>
-<button onclick="blast()">Blast Investors</button>
-<button onclick="sendLO()">Send to LO</button>
+<button onclick="sendText()">Text Deal</button>
+<button onclick="blast()">Investor Blast</button>
+<button onclick="sendToSeller()">Send to Seller</button>
 </div>
 
-<button onclick="generatePDF()">Download FULL Deal PDF</button>
-
-<!-- TAX -->
-<div class="card">
-<h2>Tax Lien</h2>
-<input id="lien" value="80000">
-<input id="rate" value="12">
-<input id="years" value="30">
-<button onclick="calcLien()">Calculate</button>
-<div id="lienOut"></div>
-</div>
-
-<!-- LINKS -->
-<div class="card">
-<h2>Funding / Credit / Tools</h2>
-
-<div class="links">
-<a href="https://form.jotform.com/252063354378055">Funding App</a>
-<a href="https://form.jotform.com/253154859148062">Upload Docs</a>
-<a href="https://app.sendfuse.com/dashboard">Sendfuse</a>
-<a href="https://rootoflyfe.blnsoftware.com/">Main Intake</a>
-
-<br><b>Credit Tools</b>
-<a href="https://www.creditscoreiq.com/lander/bus?offercode=435404PA">ScoreIQ</a>
-<a href="https://www.identityiq.com/sc-securepreferred.aspx?offercode=431297MR">IdentityIQ</a>
-
-<br><b>Starter Cards</b>
-<a href="https://www.openskycc.com/">OpenSky</a>
-<a href="https://www.capitalone.com/credit-cards/quicksilver-secured/">Capital One</a>
-
-<br><b>Rural Tools</b>
-<a href="https://www.consumerfinance.gov/rural-or-underserved-tool/#rural-or-underserved">CFPB</a>
-<a href="https://eligibility.sc.egov.usda.gov/">USDA</a>
+<button onclick="generateContractPDF()">Download Agreement PDF</button>
+<button onclick="generateInvestorPDF()">Download Investor Sheet</button>
+<button onclick="generatePOF()">Generate POF Letter</button>
 
 </div>
-</div>
-
-<!-- DROPBOX -->
-<div class="card">
-<h2>Upload Deal Files</h2>
-<iframe src="https://form.jotform.com/253154859148062"
-style="width:100%;height:400px;border:none;"></iframe>
-</div>
-
-</div>
-
-<!-- AI AGENT -->
-<div id="agent" style="position:fixed;bottom:20px;right:20px;width:320px;background:#111;padding:10px;border-radius:10px;display:none;">
-<iframe src="https://www.jotform.com/agent/019a5b67fad97a4db24b28e44f970158c0f1"
-style="width:100%;height:400px;border:none;"></iframe>
-<button onclick="agent.style.display='none'">X</button>
-</div>
-
-<button onclick="agent.style.display='block'" style="position:fixed;bottom:20px;right:20px;">AI</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 
-// SIGNATURE
-let canvas=document.getElementById("sig");
-let ctx=canvas.getContext("2d");
-let drawing=false;
-
-canvas.addEventListener("mousedown",()=>drawing=true);
-canvas.addEventListener("mouseup",()=>drawing=false);
-canvas.addEventListener("mousemove",draw);
-
-function draw(e){
-if(!drawing) return;
-ctx.lineWidth=2;
-ctx.lineTo(e.offsetX,e.offsetY);
-ctx.stroke();
-}
-
-function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+// GLOBAL DATA
+let deal = {};
+let contractText = "";
 
 // ZILLOW
 function openZillow(){
 window.open("https://www.zillow.com/homes/"+encodeURIComponent(address.value));
 }
 
-// REHAB
-function calcRehab(){
-let total=["roof","hvac","kitchen","bath","floor","paint"]
-.reduce((t,id)=>t+(+document.getElementById(id).value||0),0);
+// SIGNATURE SYSTEM
+function setupCanvas(id){
+let c=document.getElementById(id);
+let ctx=c.getContext("2d");
+let drawing=false;
 
-rehab.value=total;
-rehabOut.innerHTML=`<div class="card">Total Rehab: $${total.toLocaleString()}</div>`;
+c.addEventListener("mousedown",()=>drawing=true);
+c.addEventListener("mouseup",()=>drawing=false);
+c.addEventListener("mousemove",(e)=>{
+if(!drawing) return;
+ctx.lineWidth=2;
+ctx.lineTo(e.offsetX,e.offsetY);
+ctx.stroke();
+});
+
+c.addEventListener("touchmove",(e)=>{
+let rect=c.getBoundingClientRect();
+let x=e.touches[0].clientX-rect.left;
+let y=e.touches[0].clientY-rect.top;
+ctx.lineTo(x,y);
+ctx.stroke();
+});
 }
 
-// MORTGAGE
-function m(P,r,n){
-r=r/100/12;n=n*12;
-return P*(r*(1+r)**n)/((1+r)**n-1);
+setupCanvas("sigBuyer");
+setupCanvas("sigSeller");
+
+function clearSig(){
+["sigBuyer","sigSeller"].forEach(id=>{
+let c=document.getElementById(id);
+c.getContext("2d").clearRect(0,0,c.width,c.height);
+});
 }
 
-// DEAL
+// DEAL ENGINE
 function runDeal(){
 
-let arvV=+arv.value;
-let purchaseV=+purchase.value||0;
-let rehabV=+rehab.value||0;
+let arvV = +arv.value;
+let purchaseV = +purchase.value;
+let rehabV = +rehab.value;
 
-let total=purchaseV+rehabV;
-let spread=arvV-total;
-let fee=spread*0.3;
-
-let cash=arvV*0.5;
-let carry=arvV*0.65;
-let fin=arvV*0.75;
-
-let pay=m(carry,5,30);
-let pay2=m(fin,6,30);
+let total = purchaseV + rehabV;
+let spread = arvV - total;
+let fee = spread * 0.3;
 
 let label="⚠️ LOW";
-if(spread/arvV>0.4) label="🔥 STEAL";
-else if(spread/arvV>0.25) label="✅ SOLID";
+if(spread/arvV > 0.4) label="🔥 STEAL";
+else if(spread/arvV > 0.25) label="✅ SOLID";
 
-let text=`${label}
+deal = {arv:arvV,purchase:purchaseV,rehab:rehabV,spread,fee,address:address.value};
+
+price.value = purchaseV; // AUTO FILL CONTRACT
+
+let text = `
+${label}
 ARV: $${arvV.toLocaleString()}
 Total Cost: $${total.toLocaleString()}
 Spread: $${spread.toLocaleString()}
-All Cash: $${cash.toLocaleString()}
-Seller Carry: $${carry.toLocaleString()}
-Payment: $${pay.toFixed(0)}/mo
-Seller Finance: $${fin.toLocaleString()}
-Payment: $${pay2.toFixed(0)}/mo
-Your Fee: $${fee.toLocaleString()}`;
+Your Fee: $${fee.toLocaleString()}
+`;
 
-results.innerHTML=`<div class="card"><pre>${text}</pre></div>`;
-
-overageBox.innerHTML=`<div class="card">Overage Result: $${spread.toLocaleString()}<br>Your 30% Fee: $${fee.toLocaleString()}</div>`;
-
-window.dealText=text;
+results.innerHTML = `<div class="card"><pre>${text}</pre></div>`;
+window.dealText = text;
 }
 
-// AGREEMENT
-function generateAgreement(){
-agreement.innerHTML=`
-<div class="card">
-LOI AGREEMENT
+// CONTRACT BUILDER
+function buildContract(){
 
-Buyer: ${buyer.value}
+contractText = `
+PURCHASE & SALE AGREEMENT
+
+Property: ${deal.address}
 Seller: ${seller.value}
-Property: ${address.value}
+Buyer: ${buyer.value} and/or Assigns
 
-Terms:
-Subject to inspection
-Assignment allowed
-Close in 30 days
+Purchase Price: $${price.value}
+Earnest Money Deposit: $500 (to be held by title company)
 
-Signature captured above.
-</div>`;
+Inspection Period: 14 days
+Closing: 30 days or sooner
+Condition: Property sold AS-IS
+
+Assignment Clause:
+Buyer may assign without seller consent.
+
+Additional Clause:
+Buyer may work with funding partners.
+
+--------------------------------------
+
+SIGNATURES
+
+BUYER: ${buyer.value}
+SELLER: ${seller.value}
+`;
+
+agreement.innerHTML = `<div class="card"><pre>${contractText}</pre></div>`;
 }
 
 // SEND
-function sendText(){window.location.href=`sms:2158085844?body=${encodeURIComponent(dealText)}`;}
-function sendEmail(){window.location.href=`mailto:richman@rootoflyfe.com?body=${encodeURIComponent(dealText)}`;}
-function blast(){window.location.href=`mailto:?body=${encodeURIComponent(dealText)}`;}
-function sendLO(){window.location.href=`mailto:richman@rootoflyfe.com?subject=LO Deal&body=${encodeURIComponent(dealText)}`;}
-
-// PDF
-function generatePDF(){
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
-doc.text(dealText,10,10);
-doc.save("ROLyfe_FULL_DEAL.pdf");
+function sendEmail(){
+window.location.href=`mailto:richman@rootoflyfe.com?subject=Deal&body=${encodeURIComponent(contractText)}`;
 }
 
-// TAX
-function calcLien(){
-let t=lien.value*(1+(rate.value/100)*years.value);
-lienOut.innerHTML=`<div class="card">$${t.toFixed(0)}</div>`;
+function sendText(){
+window.location.href=`sms:2158085844?body=${encodeURIComponent(contractText)}`;
+}
+
+function blast(){
+window.location.href=`mailto:?subject=Investor Deal&body=${encodeURIComponent(dealText)}`;
+}
+
+// SEND TO SELLER (REMOTE SIGN)
+function sendToSeller(){
+let sellerPhone = prompt("Enter Seller Phone:");
+if(!sellerPhone) return;
+window.location.href=`sms:${sellerPhone}?body=${encodeURIComponent("Please review and sign your agreement: "+deal.address)}`;
+}
+
+// CONTRACT PDF
+function generateContractPDF(){
+
+const {jsPDF} = window.jspdf;
+let doc = new jsPDF();
+
+doc.text(contractText,10,10);
+
+// SIGNATURE IMAGES
+let bSig = document.getElementById("sigBuyer").toDataURL();
+let sSig = document.getElementById("sigSeller").toDataURL();
+
+doc.addImage(bSig,'PNG',10,200,80,30);
+doc.addImage(sSig,'PNG',110,200,80,30);
+
+doc.save("ROLYFE_AGREEMENT.pdf");
+}
+
+// INVESTOR SHEET
+function generateInvestorPDF(){
+
+const {jsPDF} = window.jspdf;
+let doc = new jsPDF();
+
+doc.text("INVESTOR DEAL SHEET",10,10);
+doc.text(dealText,10,20);
+
+doc.save("INVESTOR_DEAL.pdf");
+}
+
+// POF
+function generatePOF(){
+
+const {jsPDF} = window.jspdf;
+let doc = new jsPDF();
+
+doc.text("PROOF OF FUNDS LETTER",10,10);
+doc.text(`Property: ${deal.address}`,10,20);
+doc.text(`Amount: $${deal.arv.toLocaleString()}`,10,30);
+
+doc.save("POF.pdf");
 }
 
 </script>
