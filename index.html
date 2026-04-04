@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RO’Lyfe Deal Terminal</title>
+<title>RO’Lyfe Deal Closing Terminal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
@@ -34,13 +34,14 @@ button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 }
 
 canvas {background:#fff;border-radius:10px;margin-top:10px;}
+.links a {display:block;color:#38bdf8;margin:3px 0;}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<h1>RO’Lyfe Deal Terminal</h1>
+<h1>RO’Lyfe Deal Closing Terminal</h1>
 
 <!-- PROPERTY -->
 <h2>Property Analyzer</h2>
@@ -48,10 +49,10 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 <input id="address" value="5503 West Blvd, Youngstown, OH 44512">
 <button onclick="openZillow()">Check Zillow</button>
 
-<input id="arv" value="356600">
+<input id="arv" value="356600" placeholder="ARV (Zillow Zestimate)">
 
 <div class="flex">
-<input id="buyer" placeholder="Buyer Name">
+<input id="buyer" placeholder="Buyer Name (You)">
 <input id="seller" placeholder="Seller Name">
 </div>
 
@@ -69,18 +70,18 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 <h2>Repair / Inspection Estimator</h2>
 
 <div class="flex">
-<input id="roof" value="10000">
-<input id="hvac" value="10000">
+<input id="roof" value="10000" placeholder="Roof Repair ($)">
+<input id="hvac" value="10000" placeholder="HVAC ($)">
 </div>
 
 <div class="flex">
-<input id="paint" value="10000">
-<input id="flooring" value="10000">
+<input id="paint" value="10000" placeholder="Paint ($)">
+<input id="flooring" value="10000" placeholder="Flooring ($)">
 </div>
 
 <div class="flex">
-<input id="plumbing" value="10000">
-<input id="other" value="10000">
+<input id="plumbing" value="10000" placeholder="Plumbing ($)">
+<input id="other" value="10000" placeholder="Other Repairs ($)">
 </div>
 
 <button onclick="calcRepairs()">Calculate Repairs</button>
@@ -93,8 +94,8 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 <!-- SIGN -->
 <h2>Sign Contract</h2>
 
-<input id="buyerSign" placeholder="Type Buyer Name">
-<input id="sellerSign" placeholder="Type Seller Name">
+<input id="buyerSign" placeholder="Type Buyer Name (Signature)">
+<input id="sellerSign" placeholder="Type Seller Name (Signature)">
 
 <canvas id="sigPad" width="300" height="150"></canvas>
 <button onclick="clearSig()">Clear Signature</button>
@@ -105,13 +106,30 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 <button onclick="sendText()">Text Deal</button>
 <button onclick="sendEmail()">Email Deal</button>
 <button onclick="generateContract()">Generate PSA PDF</button>
-<button onclick="generatePDF()">Investor Deal PDF</button>
+<button onclick="generateInvestorPDF()">Generate Investor PDF</button>
+
+<!-- DROPBOX EMBED -->
+<h2>Upload Docs / Photos</h2>
+<iframe src="https://form.jotform.com/253154859148062"
+style="width:100%;height:500px;border:none;border-radius:10px"></iframe>
+
+<!-- LINKS -->
+<h2>Funding & Credit Links</h2>
+<div class="links">
+<a href="https://www.7figurescredit.com/?a_aid=ROLFunding" target="_blank">7Figures Credit</a>
+<a href="https://go.mypartner.io/referral-partner/?ref=001Qk00000MkqgTIAR" target="_blank">Corporate Credit</a>
+<a href="https://my.americasfundingexperts.com/?id=1820217000190862001" target="_blank">Americas Funding</a>
+<a href="https://getyourbizloan.io/lp1?pu=recqKxJNkvD70xMqi" target="_blank">Loan LP1</a>
+<a href="https://getyourbizloan.io/lp2?pu=recqKxJNkvD70xMqi" target="_blank">Loan LP2</a>
+<a href="https://rootoflyfe.blnsoftware.com/" target="_blank">Main Intake</a>
+</div>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
 <script>
-
 let currentDeal = {};
 const sigPad = new SignaturePad(document.getElementById("sigPad"));
 
@@ -120,65 +138,6 @@ let a=document.getElementById("address").value;
 window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
 }
 
-// 🔥 DEAL ANALYZER (FIXED REAL LOGIC)
-function runDeal(){
-
-let arv=parseFloat(document.getElementById("arv").value);
-let address=document.getElementById("address").value;
-
-if(!arv || !address){
-alert("Enter address & ARV");
-return;
-}
-
-// OFFERS
-let cash=arv*0.5;
-let carry=arv*0.65;
-let finance=arv*0.75;
-
-// REPAIRS
-let repairs = calcRepairs(true);
-
-// TOTAL COST
-let totalCost = cash + repairs;
-
-// SPREAD
-let spread = arv - totalCost;
-
-// YOUR FEE (30%)
-let fee = spread * 0.3;
-
-// SAVE
-currentDeal = {address,arv,cash,carry,finance,repairs,totalCost,spread,fee};
-
-// RESULT UI
-document.getElementById("results").innerHTML=`
-<div class="card">
-<h3 class="flash">🔥 SOLID DEAL</h3>
-
-<p>ARV: $${arv.toLocaleString()}</p>
-<p>Total Cost: $${totalCost.toLocaleString()}</p>
-<p>Repairs: $${repairs.toLocaleString()}</p>
-
-<p>Spread: $${spread.toLocaleString()}</p>
-<p>Your Fee: $${fee.toLocaleString()}</p>
-
-<hr>
-
-<p>All Cash: $${cash.toLocaleString()}</p>
-<p>Seller Carry: $${carry.toLocaleString()}</p>
-<p>Seller Finance: $${finance.toLocaleString()}</p>
-</div>`;
-
-// OVERAGE BOX
-document.getElementById("overageBox").innerHTML=`
-<p><b>Overage Result:</b> $${spread.toLocaleString()}</p>
-<p><b>Your 30% Fee:</b> $${fee.toLocaleString()}</p>
-`;
-
-}
-
-// 🔧 REPAIRS
 function calcRepairs(silent=false){
 let total=0;
 ["roof","hvac","paint","flooring","plumbing","other"].forEach(id=>{
@@ -193,7 +152,48 @@ document.getElementById("repairsOut").innerHTML=
 return total;
 }
 
-// TEXT
+function runDeal(){
+
+let arv=parseFloat(document.getElementById("arv").value);
+let address=document.getElementById("address").value;
+
+if(!arv || !address){
+alert("Enter address & ARV");
+return;
+}
+
+let repairs = calcRepairs(true);
+
+let cash=arv*0.5;
+let carry=arv*0.65;
+let finance=arv*0.75;
+
+let totalCost = cash + repairs;
+let spread = arv - totalCost;
+let fee = spread * 0.3;
+
+currentDeal = {address,arv,cash,carry,finance,repairs,totalCost,spread,fee};
+
+document.getElementById("results").innerHTML=`
+<div class="card">
+<h3 class="flash">🔥 SOLID DEAL</h3>
+<p>ARV: $${arv.toLocaleString()}</p>
+<p>Total Cost: $${totalCost.toLocaleString()}</p>
+<p>Repairs: $${repairs.toLocaleString()}</p>
+<p>Spread: $${spread.toLocaleString()}</p>
+<p>Your Fee: $${fee.toLocaleString()}</p>
+<hr>
+<p>All Cash: $${cash.toLocaleString()}</p>
+<p>Seller Carry: $${carry.toLocaleString()}</p>
+<p>Seller Finance: $${finance.toLocaleString()}</p>
+</div>`;
+
+document.getElementById("overageBox").innerHTML=`
+<p><b>Overage:</b> $${spread.toLocaleString()}</p>
+<p><b>Your 30% Fee:</b> $${fee.toLocaleString()}</p>
+`;
+}
+
 function sendText(){
 if(!currentDeal.address) return alert("Run deal first");
 
@@ -206,7 +206,6 @@ Fee: ${currentDeal.fee}`;
 window.location.href=`sms:?body=${encodeURIComponent(msg)}`;
 }
 
-// EMAIL
 function sendEmail(){
 if(!currentDeal.address) return alert("Run deal first");
 
@@ -216,16 +215,15 @@ ARV: ${currentDeal.arv}
 Spread: ${currentDeal.spread}
 Fee: ${currentDeal.fee}`;
 
-window.location.href=`mailto:?subject=Deal&body=${encodeURIComponent(msg)}`;
+window.location.href=`mailto:?subject=Deal Offer&body=${encodeURIComponent(msg)}`;
 }
 
-// CONTRACT (FIXED SELLER + SIGNATURE)
 function generateContract(){
-
-if(!currentDeal.address) return alert("Run deal first");
 
 let buyer=document.getElementById("buyer").value;
 let seller=document.getElementById("seller").value;
+
+if(!buyer || !seller) return alert("Enter buyer & seller");
 
 const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
@@ -233,7 +231,7 @@ let doc=new jsPDF();
 doc.text("PURCHASE & SALE AGREEMENT",10,10);
 doc.text(`Property: ${currentDeal.address}`,10,20);
 doc.text(`Seller: ${seller}`,10,30);
-doc.text(`Buyer: ${buyer}`,10,40);
+doc.text(`Buyer: ${buyer} and/or Assigns`,10,40);
 
 doc.text(`Purchase Price: $${currentDeal.cash.toLocaleString()}`,10,50);
 doc.text(`Earnest Deposit: $500`,10,60);
@@ -246,17 +244,13 @@ doc.text("Assignment Allowed",10,100);
 doc.text("Buyer Signature: "+document.getElementById("buyerSign").value,10,120);
 doc.text("Seller Signature: "+document.getElementById("sellerSign").value,10,130);
 
-// DRAW SIGNATURE
 let img = sigPad.toDataURL();
 doc.addImage(img,'PNG',10,140,60,30);
 
 doc.save("PSA.pdf");
 }
 
-// INVESTOR PDF (FULL NOW)
-function generatePDF(){
-
-if(!currentDeal.address) return alert("Run deal first");
+function generateInvestorPDF(){
 
 const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
@@ -278,12 +272,8 @@ doc.text(`Seller Finance: $${currentDeal.finance}`,10,110);
 doc.save("Investor_Deal.pdf");
 }
 
-// SIGNATURE
 function clearSig(){sigPad.clear();}
-
-// RESET
 function resetAll(){location.reload();}
-
 </script>
 
 </body>
