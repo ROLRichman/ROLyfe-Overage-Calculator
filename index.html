@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RO’Lyfe Deal Closing Terminal</title>
+<title>RO’Lyfe Deal Terminal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
@@ -12,7 +12,7 @@ body {font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:12px;}
 .container {max-width:900px;margin:auto;}
 h1,h2 {text-align:center;color:#f43f5e;}
 
-input,select,button,textarea {
+input,select,button {
 width:100%;
 padding:12px;
 margin-top:10px;
@@ -23,11 +23,11 @@ font-size:16px;
 
 button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
 .card {background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+
 .flex {display:flex;gap:10px;}
 .flex > * {flex:1;}
-.good {color:#22c55e;}
-.flash {animation:flash 1s infinite;}
 
+.flash {animation:flash 1s infinite;}
 @keyframes flash {
 0%,100% {color:#f43f5e;}
 50% {color:#22c55e;}
@@ -60,13 +60,13 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 <input id="email" placeholder="Email">
 </div>
 
-<button onclick="analyzeDeal()">Analyze Deal</button>
-<button onclick="resetPage()">Reset</button>
+<button onclick="runDeal()">Analyze Deal</button>
+<button onclick="resetAll()">Reset</button>
 
 <div id="results"></div>
 
 <!-- REPAIRS -->
-<h2>Repair Estimator</h2>
+<h2>Repair / Inspection Estimator</h2>
 
 <div class="flex">
 <input id="roof" value="10000">
@@ -75,7 +75,7 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 
 <div class="flex">
 <input id="paint" value="10000">
-<input id="floor" value="10000">
+<input id="flooring" value="10000">
 </div>
 
 <div class="flex">
@@ -86,13 +86,17 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 <button onclick="calcRepairs()">Calculate Repairs</button>
 <div id="repairsOut"></div>
 
+<!-- OVERAGE -->
+<h2>Overage Breakdown</h2>
+<div id="overageBox" class="card"></div>
+
 <!-- SIGN -->
 <h2>Sign Contract</h2>
 
 <input id="buyerSign" placeholder="Type Buyer Name">
 <input id="sellerSign" placeholder="Type Seller Name">
 
-<canvas id="pad" width="300" height="150"></canvas>
+<canvas id="sigPad" width="300" height="150"></canvas>
 <button onclick="clearSig()">Clear Signature</button>
 
 <!-- ACTIONS -->
@@ -100,41 +104,62 @@ canvas {background:#fff;border-radius:10px;margin-top:10px;}
 
 <button onclick="sendText()">Text Deal</button>
 <button onclick="sendEmail()">Email Deal</button>
-<button onclick="generatePSA()">Generate PSA PDF</button>
-<button onclick="generateInvestor()">Investor Deal PDF</button>
+<button onclick="generateContract()">Generate PSA PDF</button>
+<button onclick="generatePDF()">Investor Deal PDF</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
 <script>
-let deal = {};
-const pad = new SignaturePad(document.getElementById("pad"));
+
+let currentDeal = {};
+const sigPad = new SignaturePad(document.getElementById("sigPad"));
 
 function openZillow(){
 let a=document.getElementById("address").value;
 window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
 }
 
-function analyzeDeal(){
-let arv=parseFloat(arvInput.value||document.getElementById("arv").value);
+// 🔥 DEAL ANALYZER (FIXED REAL LOGIC)
+function runDeal(){
 
+let arv=parseFloat(document.getElementById("arv").value);
+let address=document.getElementById("address").value;
+
+if(!arv || !address){
+alert("Enter address & ARV");
+return;
+}
+
+// OFFERS
 let cash=arv*0.5;
 let carry=arv*0.65;
 let finance=arv*0.75;
 
-let spread=arv - 230000;
-let fee=spread*0.3;
+// REPAIRS
+let repairs = calcRepairs(true);
 
-deal={
-address:address.value,
-arv,cash,carry,finance,spread,fee
-};
+// TOTAL COST
+let totalCost = cash + repairs;
 
-results.innerHTML=`
+// SPREAD
+let spread = arv - totalCost;
+
+// YOUR FEE (30%)
+let fee = spread * 0.3;
+
+// SAVE
+currentDeal = {address,arv,cash,carry,finance,repairs,totalCost,spread,fee};
+
+// RESULT UI
+document.getElementById("results").innerHTML=`
 <div class="card">
 <h3 class="flash">🔥 SOLID DEAL</h3>
+
 <p>ARV: $${arv.toLocaleString()}</p>
-<p>Total Cost: $230,000</p>
+<p>Total Cost: $${totalCost.toLocaleString()}</p>
+<p>Repairs: $${repairs.toLocaleString()}</p>
+
 <p>Spread: $${spread.toLocaleString()}</p>
 <p>Your Fee: $${fee.toLocaleString()}</p>
 
@@ -143,72 +168,122 @@ results.innerHTML=`
 <p>All Cash: $${cash.toLocaleString()}</p>
 <p>Seller Carry: $${carry.toLocaleString()}</p>
 <p>Seller Finance: $${finance.toLocaleString()}</p>
-</div>
+</div>`;
+
+// OVERAGE BOX
+document.getElementById("overageBox").innerHTML=`
+<p><b>Overage Result:</b> $${spread.toLocaleString()}</p>
+<p><b>Your 30% Fee:</b> $${fee.toLocaleString()}</p>
 `;
+
 }
 
-function calcRepairs(){
+// 🔧 REPAIRS
+function calcRepairs(silent=false){
 let total=0;
-["roof","hvac","paint","floor","plumbing","other"].forEach(id=>{
+["roof","hvac","paint","flooring","plumbing","other"].forEach(id=>{
 total+=parseFloat(document.getElementById(id).value)||0;
 });
-repairsOut.innerHTML=`<div class="card">Repairs: $${total}</div>`;
-deal.repairs=total;
+
+if(!silent){
+document.getElementById("repairsOut").innerHTML=
+`<div class="card">Total Repairs: $${total.toLocaleString()}</div>`;
 }
 
+return total;
+}
+
+// TEXT
 function sendText(){
-let msg=`Deal ${deal.address} ARV $${deal.arv} Spread $${deal.spread}`;
+if(!currentDeal.address) return alert("Run deal first");
+
+let msg=`Deal:
+${currentDeal.address}
+ARV: ${currentDeal.arv}
+Spread: ${currentDeal.spread}
+Fee: ${currentDeal.fee}`;
+
 window.location.href=`sms:?body=${encodeURIComponent(msg)}`;
 }
 
+// EMAIL
 function sendEmail(){
+if(!currentDeal.address) return alert("Run deal first");
+
 let msg=`Deal:
-${deal.address}
-ARV: ${deal.arv}
-Spread: ${deal.spread}
-Fee: ${deal.fee}`;
+${currentDeal.address}
+ARV: ${currentDeal.arv}
+Spread: ${currentDeal.spread}
+Fee: ${currentDeal.fee}`;
 
 window.location.href=`mailto:?subject=Deal&body=${encodeURIComponent(msg)}`;
 }
 
-function generatePSA(){
-const {jsPDF}=window.jspdf;
+// CONTRACT (FIXED SELLER + SIGNATURE)
+function generateContract(){
+
+if(!currentDeal.address) return alert("Run deal first");
+
+let buyer=document.getElementById("buyer").value;
+let seller=document.getElementById("seller").value;
+
+const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
 
 doc.text("PURCHASE & SALE AGREEMENT",10,10);
-doc.text(`Property: ${deal.address}`,10,20);
-doc.text(`Seller: ${seller.value}`,10,30);
-doc.text(`Buyer: ${buyer.value}`,10,40);
-doc.text(`Price: $${deal.cash}`,10,50);
-doc.text("Inspection: 14 days",10,60);
-doc.text("Closing: 30 days",10,70);
-doc.text("AS-IS",10,80);
+doc.text(`Property: ${currentDeal.address}`,10,20);
+doc.text(`Seller: ${seller}`,10,30);
+doc.text(`Buyer: ${buyer}`,10,40);
 
-doc.text("Buyer Signature: "+buyerSign.value,10,100);
-doc.text("Seller Signature: "+sellerSign.value,10,110);
+doc.text(`Purchase Price: $${currentDeal.cash.toLocaleString()}`,10,50);
+doc.text(`Earnest Deposit: $500`,10,60);
+doc.text(`Inspection: 14 Days`,10,70);
+doc.text(`Closing: 30 Days`,10,80);
+doc.text(`Condition: AS-IS`,10,90);
 
-let img = pad.toDataURL();
-doc.addImage(img,'PNG',10,120,60,30);
+doc.text("Assignment Allowed",10,100);
+
+doc.text("Buyer Signature: "+document.getElementById("buyerSign").value,10,120);
+doc.text("Seller Signature: "+document.getElementById("sellerSign").value,10,130);
+
+// DRAW SIGNATURE
+let img = sigPad.toDataURL();
+doc.addImage(img,'PNG',10,140,60,30);
 
 doc.save("PSA.pdf");
 }
 
-function generateInvestor(){
-const {jsPDF}=window.jspdf;
+// INVESTOR PDF (FULL NOW)
+function generatePDF(){
+
+if(!currentDeal.address) return alert("Run deal first");
+
+const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
 
 doc.text("INVESTOR DEAL SHEET",10,10);
-doc.text(`Property: ${deal.address}`,10,20);
-doc.text(`ARV: $${deal.arv}`,10,30);
-doc.text(`Spread: $${deal.spread}`,10,40);
-doc.text(`Fee: $${deal.fee}`,10,50);
-doc.text(`Repairs: $${deal.repairs||0}`,10,60);
 
-doc.save("Investor.pdf");
+doc.text(`Property: ${currentDeal.address}`,10,20);
+doc.text(`ARV: $${currentDeal.arv}`,10,30);
+doc.text(`Repairs: $${currentDeal.repairs}`,10,40);
+
+doc.text(`Total Cost: $${currentDeal.totalCost}`,10,50);
+doc.text(`Spread: $${currentDeal.spread}`,10,60);
+doc.text(`Your Fee: $${currentDeal.fee}`,10,70);
+
+doc.text(`All Cash: $${currentDeal.cash}`,10,90);
+doc.text(`Seller Carry: $${currentDeal.carry}`,10,100);
+doc.text(`Seller Finance: $${currentDeal.finance}`,10,110);
+
+doc.save("Investor_Deal.pdf");
 }
 
-function clearSig(){pad.clear();}
-function resetPage(){location.reload();}
+// SIGNATURE
+function clearSig(){sigPad.clear();}
+
+// RESET
+function resetAll(){location.reload();}
+
 </script>
 
 </body>
