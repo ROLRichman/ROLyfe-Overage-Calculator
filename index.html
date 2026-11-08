@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RO’Lyfe Deal Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {font-family:Roboto;background:#0f172a;color:#fff;margin:0;padding:12px;}
+.container {max-width:900px;margin:auto;}
+h1,h2 {text-align:center;color:#f43f5e;}
+input,select,button {width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px;}
+button {background:#f43f5e;color:white;font-weight:bold;cursor:pointer;}
+.card {background:#1e293b;padding:15px;border-radius:10px;margin-top:15px;}
+.flex {display:flex;gap:10px;}
+.flex > * {flex:1;}
+.flash {animation:flash 1s infinite;}
+@keyframes flash {0%,100% {color:#f43f5e;} 50% {color:#22c55e;}}
+canvas {background:#fff;border-radius:10px;margin-top:10px;}
+.links a {display:block;color:#fff;text-decoration:none;margin:3px 0;}
+.links a:hover {color:#22c55e;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>RO’Lyfe Deal Terminal</h1>
+
+<!-- PROPERTY ANALYZER -->
+<h2>Property Analyzer</h2>
+<input id="address" placeholder="Property address, city, state and ZIP">
+<button onclick="openZillow()">Check Zillow</button>
+<input id="arv" type="number" min="0" step="1000" placeholder="After-repair value (ARV) $">
+<input id="purchasePrice" type="number" min="0" step="500" placeholder="Purchase price / current bid $">
+<div class="flex">
+  <input id="buyer" placeholder="Buyer Name">
+  <input id="seller" placeholder="Seller Name">
+</div>
+<div class="flex">
+  <input id="phone" placeholder="Phone">
+  <input id="email" placeholder="Email">
+</div>
+<button onclick="runDeal()">Analyze Deal</button>
+<button onclick="resetAll()">Reset</button>
+<div id="results"></div>
+
+<!-- REPAIRS -->
+<h2>Repair / Inspection Estimator</h2>
+<div class="flex">
+  <input id="roof" value="0" placeholder="Roofing $">
+  <input id="hvac" value="0" placeholder="HVAC $">
+</div>
+<div class="flex">
+  <input id="paint" value="0" placeholder="Paint $">
+  <input id="flooring" value="0" placeholder="Flooring $">
+</div>
+<div class="flex">
+  <input id="plumbing" value="0" placeholder="Plumbing $">
+  <input id="other" value="0" placeholder="Other $">
+</div>
+<div class="flex">
+  <input id="closingCosts" type="number" min="0" value="0" placeholder="Closing / auction costs $">
+  <input id="holdingCosts" type="number" min="0" value="0" placeholder="Holding / carry costs $">
+</div>
+<div class="flex">
+  <input id="sellingPct" type="number" min="0" max="100" step="0.1" value="0" placeholder="Selling costs %">
+  <input id="assignmentFee" type="number" min="0" value="0" placeholder="Assignment / broker fee $">
+</div>
+<div class="flex">
+  <input id="contingencyPct" type="number" min="0" max="100" step="1" value="10" placeholder="Rehab contingency %">
+  <input id="targetProfit" type="number" min="0" value="0" placeholder="Target profit $">
+</div>
+<button onclick="calcRepairs()">Calculate Repairs</button>
+<div id="repairsOut"></div>
+
+<!-- OVERAGE -->
+<h2>Deal Economics Summary</h2>
+<div id="overageBox" class="card"></div>
+
+<!-- SIGNATURE -->
+<h2>Deal Review Acknowledgment · Not a Contract</h2><p class="small">This worksheet is not a purchase agreement or legal contract. Use the approved RO’Lyfe contract/document workflow for binding documents.</p>
+<input id="buyerSign" placeholder="Type Buyer Name">
+<input id="sellerSign" placeholder="Type Seller Name">
+<canvas id="sigPad" width="300" height="150"></canvas>
+<button onclick="clearSig()">Clear Signature</button>
+
+<!-- PHOTOS -->
+<h2>Photos & Upload</h2>
+<input type="file" id="propertyPics" multiple>
+<button onclick="uploadPhotos()">Open Secure Quick Docs Upload</button>
+
+<!-- FUNDING & CREDIT LINKS -->
+<h2>Funding & Credit Links</h2>
+<div class="links">
+  <a href="https://www.7figurescredit.com/?a_aid=ROLFunding" target="_blank">7Figures Credit</a>
+  <a href="https://go.mypartner.io/referral-partner/?ref=001Qk00000MkqgTIAR" target="_blank">Corporate Credit Partner</a>
+  <a href="https://my.americasfundingexperts.com/?id=1820217000190862001" target="_blank">Americas Funding Experts</a>
+  <a href="https://getyourbizloan.io/lp1?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP1</a>
+  <a href="https://getyourbizloan.io/lp2?pu=recqKxJNkvD70xMqi" target="_blank">Loan Automation LP2</a>
+  <a href="https://form.jotform.com/252063354378055" target="_blank" rel="noopener noreferrer">Secure Funding Intake</a>
+  <a href="https://form.jotform.com/253154859148062" target="_blank">Quick Document Upload</a>
+  
+  <a href="https://www.creditscoreiq.com/lander/bus?offercode=435404PA" target="_blank">Credit Score IQ 1</a>
+  <a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=432142NZ" target="_blank">Credit Score IQ 2</a>
+  <a href="https://www.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Identity IQ</a>
+  <a href="https://www.creditbuilderiq.com/lander/bus?offercode=437502WT" target="_blank">Credit Builder IQ 1</a>
+  <a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=432142NY" target="_blank">Credit Score IQ 3</a>
+  <a href="https://www.creditbuilderiq.com/lander/bus?offercode=437502J7" target="_blank">Credit Builder IQ 2</a>
+  <a href="https://www.myscoreiq.com/get-fico-preferred.aspx?offercode=4321396B" target="_blank">Credit Score IQ 4</a>
+  <a href="https://member.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Do you have your credit score?</a>
+  <a href="https://member.identityiq.com/sc-securepreferred.aspx?offercode=431297MR" target="_blank">Do you need to download credit score?</a>
+  
+  <a href="https://rootoflyfe.blnsoftware.com/" target="_blank">My Other Intake</a>
+  <a href="https://www.consumerfinance.gov/rural-or-underserved-tool/#rural-or-underserved" target="_blank">Rural Areas</a>
+  <a href="https://eligibility.sc.egov.usda.gov/eligibility/welcomeAction.do?pageAction=sfp" target="_blank">USDA Eligibility</a>
+  <a href="https://www.openskycc.com/" target="_blank">OpenSky Starter Card</a>
+  <a href="https://www.tomocredit.com/" target="_blank">Tomo</a>
+  <a href="https://www.zolve.com/" target="_blank">Zolve</a>
+  <a href="https://www.growcredit.com/" target="_blank">Grow Credit</a>
+  <a href="https://www.discover.com/credit-cards/secured/" target="_blank">Discover Secured</a>
+  <a href="https://www.capitalone.com/credit-cards/quicksilver-secured/" target="_blank">Capital One</a>
+  <a href="https://www.self.inc/" target="_blank">Self Loan</a>
+</div>
+
+<!-- DROPBOX / JOTFORM EMBED -->
+<h2>Secure Quick Docs Upload</h2>
+<details id="quickDocsPanel"><summary>Open Quick Docs Upload Form</summary><iframe title="RO’Lyfe Quick Docs Upload" loading="lazy" src="https://form.jotform.com/253154859148062" style="width:100%;height:560px;border:none;"></iframe><a href="https://form.jotform.com/253154859148062" target="_blank" rel="noopener noreferrer">Open Quick Docs in a new tab ↗</a></details>
+
+<!-- ACTIONS -->
+<h2>Actions</h2>
+<button onclick="sendText()">Text Deal</button>
+<button onclick="sendEmail()">Email Deal</button>
+<button onclick="generateContract()">Generate PSA PDF</button>
+<button onclick="generatePDF()">Investor Deal PDF</button>
+<button onclick="generateFullPagePDF()">Download Full Page PDF</button>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+let currentDeal = {};
+const sigPad = window.SignaturePad ? new SignaturePad(document.getElementById("sigPad")) : null;
+
+// Zillow
+function openZillow(){
+  let a=document.getElementById("address").value;
+  if(!a) return alert("Enter address");
+  window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
+}
+
+// Deal Analyzer
+function num(id){
+  const value=Number(document.getElementById(id)?.value||0);
+  return Number.isFinite(value)&&value>0?value:0;
+}
+function money(value){return Number(value||0).toLocaleString("en-US",{maximumFractionDigits:0});}
+function runDeal(){
+  const arv=num("arv"),purchase=num("purchasePrice"),address=document.getElementById("address").value.trim();
+  if(!address||arv<=0||purchase<=0){alert("Enter a property address, ARV and current purchase price / bid.");return;}
+  const repairs=calcRepairs(true),contingency=repairs*(num("contingencyPct")/100);
+  const closing=num("closingCosts"),holding=num("holdingCosts"),sellingCosts=arv*(num("sellingPct")/100);
+  const assignment=num("assignmentFee"),targetProfit=num("targetProfit");
+  const otherCosts=closing+holding+sellingCosts+assignment;
+  const nonPurchaseCosts=repairs+contingency+otherCosts;
+  const totalCost=purchase+nonPurchaseCosts,netProfit=arv-totalCost;
+  const maxOffer=arv-nonPurchaseCosts-targetProfit,margin=(netProfit/arv)*100;
+  const meetsTarget=netProfit>=targetProfit;
+  currentDeal={address,arv,purchase,repairs,contingency,closing,holding,sellingCosts,assignment,targetProfit,otherCosts,totalCost,netProfit,maxOffer,margin,meetsTarget};
+  const status=meetsTarget?"At / above entered target":"Below entered target";
+  document.getElementById("results").innerHTML=
+    '<div class="card"><h3 class="flash">'+status+'</h3>'+
+    '<p>After-repair value (ARV): $'+money(arv)+'</p>'+
+    '<p>Purchase price / current bid: $'+money(purchase)+'</p>'+
+    '<p>Repairs: $'+money(repairs)+'</p>'+
+    '<p>Rehab contingency: $'+money(contingency)+'</p>'+
+    '<p>Closing, holding, selling and assignment costs: $'+money(otherCosts)+'</p>'+
+    '<p>Total estimated project cost: $'+money(totalCost)+'</p>'+
+    '<p><b>Projected net profit / (loss): $'+money(netProfit)+'</b></p>'+
+    '<p><b>Maximum allowable offer for entered target: $'+money(maxOffer)+'</b></p>'+
+    '<p>Net margin on ARV: '+margin.toFixed(1)+'%</p>'+
+    '<hr><p class="small">This result uses only the figures entered. It is a preliminary screen, not a valuation, lender decision, offer recommendation or guarantee.</p></div>';
+  document.getElementById("overageBox").innerHTML=
+    '<p><b>Projected net profit / (loss):</b> $'+money(netProfit)+'</p>'+
+    '<p><b>Maximum allowable offer:</b> $'+money(maxOffer)+'</p>'+
+    '<p><b>Target profit entered:</b> $'+money(targetProfit)+'</p>';
+}
+
+// Repairs
+function calcRepairs(silent=false){
+  let total=0;
+  ["roof","hvac","paint","flooring","plumbing","other"].forEach(id=>{
+    total+=parseFloat(document.getElementById(id).value)||0;
+  });
+  if(!silent) document.getElementById("repairsOut").innerHTML=`<div class="card">Total Repairs: $${total.toLocaleString()}</div>`;
+  return total;
+}
+
+// Text
+function sendText(){
+  if(!currentDeal.address) return alert("Run deal first");
+  let msg=`Deal: ${currentDeal.address}\nARV: ${currentDeal.arv}\nPurchase: ${currentDeal.purchase}\nNet profit: ${currentDeal.netProfit}\nMaximum allowable offer: ${currentDeal.maxOffer}`;
+  window.location.href=`sms:?body=${encodeURIComponent(msg)}`;
+}
+
+// Email
+function sendEmail(){
+  if(!currentDeal.address) return alert("Run deal first");
+  let msg=`Deal:\n${currentDeal.address}\nARV: ${currentDeal.arv}\nSpread: ${currentDeal.spread}\nFee: ${currentDeal.fee}`;
+  window.location.href=`mailto:?subject=Deal&body=${encodeURIComponent(msg)}`;
+}
+
+// Contract PDF
+function generateContract(){
+  if(!currentDeal.address) return alert("Run deal first");
+  const { jsPDF } = window.jspdf;
+  let doc=new jsPDF();
+  let buyer=document.getElementById("buyer").value;
+  let seller=document.getElementById("seller").value;
+  doc.text("DEAL REVIEW WORKSHEET — NOT A CONTRACT",10,10);
+  doc.text(`Property: ${currentDeal.address}`,10,20);
+  doc.text(`Seller: ${seller}`,10,30);
+  doc.text(`Buyer: ${buyer}`,10,40);
+  doc.text(`Purchase Price: ${currentDeal.purchase.toLocaleString()}`,10,50);
+  doc.text("Buyer Signature: "+document.getElementById("buyerSign").value,10,60);
+  doc.text("Seller Signature: "+document.getElementById("sellerSign").value,10,70);
+  if(sigPad){let img=sigPad.toDataURL();if(img&&img.length>100)doc.addImage(img,'PNG',10,80,60,30);}
+  doc.text("Projected net profit: $"+currentDeal.netProfit.toLocaleString(),10,120);
+  doc.text("Maximum allowable offer: $"+currentDeal.maxOffer.toLocaleString(),10,130);
+  doc.text("This worksheet is not a binding purchase agreement.",10,145);
+  doc.save("PSA.pdf");
+}
+
+// Investor PDF
+function generatePDF(){
+  if(!currentDeal.address) return alert("Run deal first");
+  const { jsPDF } = window.jspdf;
+  let doc=new jsPDF();
+  doc.text("INVESTOR DEAL SHEET",10,10);
+  doc.text(`Property: ${currentDeal.address}`,10,20);
+  doc.text(`ARV: $${currentDeal.arv}`,10,30);
+  doc.text(`Repairs: ${currentDeal.repairs}`,10,40);
+  doc.text(`Contingency: ${currentDeal.contingency}`,10,50);
+  doc.text(`Purchase: ${currentDeal.purchase}`,10,60);
+  doc.text(`Total Cost: ${currentDeal.totalCost}`,10,70);
+  doc.text(`Net Profit: ${currentDeal.netProfit}`,10,80);
+  doc.text(`Maximum Allowable Offer: ${currentDeal.maxOffer}`,10,90);
+  doc.text(`Closing / holding / selling / assignment: ${currentDeal.otherCosts}`,10,110);
+  doc.text(`Target profit: ${currentDeal.targetProfit}`,10,120);
+  doc.text("Screening estimate only — not a funding offer or guaranteed profit.",10,140);
+  doc.save("Investor_Deal.pdf");
+}
+
+// Full Page PDF
+function generateFullPagePDF(){
+  const { jsPDF } = window.jspdf;
+  let doc=new jsPDF('p','pt','a4');
+  doc.html(document.body,{callback:function(d){d.save('Full_Page.pdf');},x:10,y:10,html2canvas:{scale:0.5}});
+}
+
+// Signature
+function clearSig(){if(sigPad)sigPad.clear();else alert("Signature pad library is unavailable. Calculation tools remain usable.");}
+
+// Reset
+function resetAll(){location.reload();}
+
+// Photo upload placeholder
+function uploadPhotos(){const panel=document.getElementById("quickDocsPanel");if(panel){panel.open=true;panel.scrollIntoView({behavior:"smooth",block:"start"});}else{window.open("https://form.jotform.com/253154859148062","_blank","noopener,noreferrer");}}
+</script>
+<script src="https://rolrichman.github.io/rolyfe-property-research-intelligence/shared/property-research-dock.js"></script>
+</body>
+</html>
