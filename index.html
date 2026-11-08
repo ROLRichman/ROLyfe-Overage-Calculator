@@ -147,7 +147,7 @@ const sigPad = window.SignaturePad ? new SignaturePad(document.getElementById("s
 function openZillow(){
   let a=document.getElementById("address").value;
   if(!a) return alert("Enter address");
-  window.open("https://www.zillow.com/homes/"+encodeURIComponent(a));
+  window.open("https://www.zillow.com/homes/"+encodeURIComponent(a),"_blank","noopener,noreferrer");
 }
 
 // Deal Analyzer
@@ -207,13 +207,14 @@ function sendText(){
 // Email
 function sendEmail(){
   if(!currentDeal.address) return alert("Run deal first");
-  let msg=`Deal:\n${currentDeal.address}\nARV: ${currentDeal.arv}\nSpread: ${currentDeal.spread}\nFee: ${currentDeal.fee}`;
+  let msg=`Deal: ${currentDeal.address}\nARV: ${currentDeal.arv}\nPurchase: ${currentDeal.purchase}\nNet profit: ${currentDeal.netProfit}\nMaximum allowable offer: ${currentDeal.maxOffer}`;
   window.location.href=`mailto:?subject=Deal&body=${encodeURIComponent(msg)}`;
 }
 
 // Contract PDF
 function generateContract(){
   if(!currentDeal.address) return alert("Run deal first");
+  if(!window.jspdf||!window.jspdf.jsPDF){alert("PDF library did not load. Try again or use the secure document workflow.");return;}
   const { jsPDF } = window.jspdf;
   let doc=new jsPDF();
   let buyer=document.getElementById("buyer").value;
@@ -229,12 +230,13 @@ function generateContract(){
   doc.text("Projected net profit: $"+currentDeal.netProfit.toLocaleString(),10,120);
   doc.text("Maximum allowable offer: $"+currentDeal.maxOffer.toLocaleString(),10,130);
   doc.text("This worksheet is not a binding purchase agreement.",10,145);
-  doc.save("PSA.pdf");
+  doc.save("Deal_Review_Worksheet.pdf");
 }
 
 // Investor PDF
 function generatePDF(){
   if(!currentDeal.address) return alert("Run deal first");
+  if(!window.jspdf||!window.jspdf.jsPDF){alert("PDF library did not load. Try again later.");return;}
   const { jsPDF } = window.jspdf;
   let doc=new jsPDF();
   doc.text("INVESTOR DEAL SHEET",10,10);
@@ -254,6 +256,7 @@ function generatePDF(){
 
 // Full Page PDF
 function generateFullPagePDF(){
+  if(!window.jspdf||!window.jspdf.jsPDF||!window.html2canvas){alert("Full-page PDF support did not load. Use Investor Deal PDF instead.");return;}
   const { jsPDF } = window.jspdf;
   let doc=new jsPDF('p','pt','a4');
   doc.html(document.body,{callback:function(d){d.save('Full_Page.pdf');},x:10,y:10,html2canvas:{scale:0.5}});
